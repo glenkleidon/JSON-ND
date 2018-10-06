@@ -9,7 +9,7 @@ The specification describes a way to define _**specific data-types**_ for JSON e
 
 JSON-ND encoding is always valid JSON and all JSON is valid JSON-ND.    
 
-Inspired by [TypeScript](https://www.typescriptlang.org) notation, all that is required is that _**the data-type be appended to the end of a JSON string**_.
+Inspired in part by [TypeScript](https://www.typescriptlang.org) notation, all that is required is that _**the data-type be appended to the end of a JSON string**_.
 
 ## Using JSON-ND
 
@@ -18,7 +18,7 @@ To encode data using JSON ND when using Name/Value pairs, just add a colon chara
 **{"Name:_data-type_" : value}**
 
 For **Value elements** contained within a JSON Array, a JSON string is used.  The data element is encoded as a JSON string with any literal colons escaped (as
-per the JSON specification using UNICODE character \u003A), followed by the Colon Character (":") and the data type. 
+per the JSON specification using UNICODE character \u003A), followed by the colon character (":") and the data-type. 
 
 **["Name:_data-type_"]**
 
@@ -31,9 +31,9 @@ A data-type MAY BE a literal value.
 It is expected that _more specific_ definitions for specific purposes (eg "JSON-ND for C Languages") will be defined in the future as extensions of this specification.
 
 ## Use of Colons in Data-types
-Implementations of JSON-ND should only consider the first occurrence of the Colon (":") character. Subsequent colons MAY or MAY NOT be escaped as desired and MUST BE considered as data, and NOT a delimiter.
+Implementations of JSON-ND should only consider the first occurrence of the colon (":") character. Subsequent colons MAY or MAY NOT be escaped as desired and MUST BE considered as data, and NOT a delimiter.
 
-This is to facilitate data-types that may include the colon character for its own purpose.  For example C++ uses as double colon ("::") as a namespace qualifier. This approach also allows the data-type to describe a method, its parameters and return type for the purposes of RPC calls.
+The purpose of interpreting subsequent colons as data is to facilitate data-types that may include the colon character for its own purpose.  For example C++ uses as double colon ("::") as a namespace qualifier. This approach also allows the data-type to describe a method, its parameters and return type for the purposes of RPC calls.
 
 While using characters such as colons, braces and brackets in the name is valid json, the practice makes the object name inaccessible after a JSON.parse() call in Javascript.  This is fortunate and convenient as it forces the script to validate the received object before any qualified values are (easily) accessible to javascript code.  A very basic validator implementation is included as an example below.
  
@@ -47,23 +47,33 @@ In order to ensure the parsing system knows how to deal with the data-types, the
 
 where **language** refers to a specific language or specification used within the JSON document.
 
-There is a strong argument for selecting **TypeScript** to be the default language standard (where none is specified).  However the limitation of this is that **Number** data type is often the reason the type qualification is required.  
 
 The _**default language style**_ is defined as "_**Typescript**_". and when no style is specified, TypeScript MUST BE assumed.  Again the exact specification for "JSON-ND for Typescript" is out of scope and may be defined elsewhere.
+
+There are strong arguments for selecting **TypeScript** to be the default language.  However the limitation of this is that **Number** data type is often the reason the type qualification is required.  
 
 ## Defining Complex Types - the _Interface_ data-type
 A complex type can be defined using an array of values or objects.  The **Interface** data-type reserved for this purpose.  It is defined in the following way:
 
 {
-"data-type name: **interface**" : "Value" **OR** [
+"data-type name: **interface**" : "Name:data-type"}
+
+**OR** 
+
+{"data-type name: **interface**" : [
 
   "elementName1:data-type" **OR** {"elementName1:data-type":"value" **OR** [] },
+  
+  "elementName2:data-type" **OR** {"elementName2:data-type":"value" **OR** [] },
 
   ...
 
   "elementName'n':data-type" **OR** {"elementName'n':data-type":"value" **OR** [] }
+  
   ] 
 } 
+
+The Element Name MAY BE empty.
 
 ## JSON-ND Mime Type
 The following MIME Type (to be used in the content-type of html headers) is defined to be _**application/json+nd**_ and the preferred file extension is _**.jsonnd**_. 
@@ -119,7 +129,18 @@ Becomes:
 	
 ```
 
-### Programming Language Styles
+### Programming Language Styles (suggestion only)
+#### Typescript style:
+```
+	  "count:BigInteger" : 1,
+	  "age:number" : 27.3,
+	  "arrivalTime:Date" : "15:23:02",0
+	  "dollarAmount:number" : 200.33,
+	  "arrayOfInt:number[]" : [1,2,3,4,5,6]
+	  "twoDArray:any[2][2]" : [ ["0,0","0,1"], ["1,0","1,1"] ]
+	}
+```	
+
 #### C++ style:
 ```
 	{ 
@@ -128,6 +149,18 @@ Becomes:
 	  "age:float" : 27.3,
 	  "arrivalTime:std::tm" : "15:23:02",
 	  "dollarAmount:long double" : 200.33,
+	  "arrayOfInt:int[]" : [1,2,3,4,5,6]
+	  "twoDArray:string[2][2]" : [ ["0,0","0,1"], ["1,0","1,1"] ]
+	}
+```	
+#### C# style:
+```
+	{ 
+	  ["JsonND" :{"version": 1.0,"style": "C#"},
+	  "count:int" : 1,
+	  "age:Single;f" : 27.3,
+	  "arrivalTime:DateTime" : "15:23:02",
+	  "dollarAmount:Decimal;m" : 200.33,
 	  "arrayOfInt:int[]" : [1,2,3,4,5,6]
 	  "twoDArray:string[2,2]" : [ ["0,0","0,1"], ["1,0","1,1"] ]
 	}
@@ -158,6 +191,19 @@ The example above is in a C style, but could also be encoded in a pascal style
 ```
 ### Interface Examples
 
+#### Single Value (type aliasing)
+C Style
+```
+{
+	"PInteger:*int"
+}
+```
+Pascal Style
+```
+{
+	"PInteger:^integer"
+}
+```
 #### Enumerated types.
 ```
 { 

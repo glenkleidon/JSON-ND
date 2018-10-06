@@ -179,7 +179,7 @@ Becomes:
 #### Pascal style:
 ```
 { 
-  ["JsonND" :{"version": 1.0,"style": "C++"},
+  ["JsonND" :{"version": 1.0,"style": "Pascal"},
   "count:integer" : 1,
   "age:single" : 27.3,
   "arrivalTime:datetime" : "15:23:02",

@@ -37,7 +37,7 @@ This specification **DOES NOT** define any specific data types except for the **
 
 In order to ensure the parsing system knows how to deal with the data-types, the following qualifying element **CAN BE** prefixed to the JSON message:
 
-"JSON-ND 1.0" :{"style": "_**language**_"}
+"JsonND" :{"version": 1.0,"style": "_**language**_"}
 
 where **language** refers to a specific language or specification used within the JSON document.
 
@@ -50,16 +50,16 @@ A complex type can be defined using an array of values or objects.  The "Interfa
 {
 "data-type name: **interface**" : [
 
-  "elementName1:data-type" **OR** {"elementName1:data-type":"value"},
+  "elementName1:data-type" **OR** {"elementName1:data-type":"value" **OR** [] },
 
   ...
 
-  "elementName'n':data-type" **OR** {"elementName'n':data-type":"value"}
+  "elementName'n':data-type" **OR** {"elementName'n':data-type":"value" **OR** [] }
   ] 
 } 
 
 
-## Examples:
+## JSON-ND Examples:
 
 ### Element Names
 
@@ -97,7 +97,7 @@ Becomes:
 #### C++ style:
 ```
 	{ 
-	  ["JSON-ND 1.0": {"style": "C++"}},
+	  ["JsonND" :{"version": 1.0,"style": "C++"},
 	  "count:short int" : 1,
 	  "age:float" : 27.3,
 	  "arrivalTime:std::tm" : "15:23:02",
@@ -109,7 +109,7 @@ Becomes:
 #### Pascal style:
 ```
 	{ 
-	  ["JSON-ND 1.0": {"style": "Pascal"}},
+	  ["JsonND" :{"version": 1.0,"style": "C++"},
 	  "count:integer" : 1,
 	  "age:single" : 27.3,
 	  "arrivalTime:datetime" : "15:23:02",
@@ -134,7 +134,8 @@ The example above is in a C style, but could also be encoded in a pascal style
 
 #### Enumerated types.
 ```
-{ "RoleType:enum" :[
+{ 
+	"RoleType:enum" :[
     "admin:1",
     "accounts",
     "sales",
@@ -149,12 +150,12 @@ The example above is in a C style, but could also be encoded in a pascal style
 		"name:string",
 		"id:int",
 		"roles:RoleTypes[0,]"
-	],
+	]
 }
 ```
 
 
-#### Class Data Types ()
+#### Class Data Types 
 If follows that a class type COULD BE defined using the interface above.
 
 The approach for defining data classes is not in the scope of this document.

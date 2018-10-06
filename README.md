@@ -20,7 +20,7 @@ To encode data using JSON ND when using Name/Value pairs, just add a colon chara
 For **Value elements** contained within a JSON Array, a JSON string is used.  The data element is encoded as a JSON string with any literal colons escaped (as
 per the JSON specification using UNICODE character \u003A), followed by the colon character (":") and the data-type. 
 
-**["Name:_data-type_"]**
+**["Value:_data-type_"]**
 
 The term **"data-type"** is completely open and it should be interpreted to mean: 
 

@@ -2,14 +2,14 @@
 
 JSON-ND or _**JSON with Named Datatypes**_ is a very simple extension to the [JSON format](https://json.org).  
 
-The specification describes a way to define _**specific data-types**_ for JSON elements and also allows for _**complex-data types be defined**_ as interfaces.  This is far simpler, (but also less complete) than the [JSON Schema](https://json-schema.org/) approach because
+The specification describes a way to define _**specific data-types**_ for JSON elements and also allows for _**complex-data types to be defined**_ as interfaces.  This is far simpler, (but also less complete) than the [JSON Schema](https://json-schema.org/) approach because
 + the data and defintion are not separated
 + and no prior knowledge is required by a service to use the definition. 
 
 
 JSON-ND encoding is always valid JSON and all JSON is valid JSON-ND.    
 
-Inspired in part by [TypeScript](https://www.typescriptlang.org) notation, all that is required is that _**the data-type be appended to the end of a JSON string**_.
+Inspired in part by [TypeScript](https://www.typescriptlang.org) notation, all that is required is that (optionally) _**the data-type be appended to the end of a JSON string**_.
 
 ## Using JSON-ND
 
@@ -127,6 +127,14 @@ Becomes:
 	"true:boolean"
 	]
 	
+```
+### When intent is not clear use data types, otherwise data type is optional 
+```
+	[
+		"id" : 0,
+		"Name" : string;
+		"isLoggedIn:boolean" : 0
+	]
 ```
 
 ### Programming Language Styles (suggestion only)

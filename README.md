@@ -3,7 +3,7 @@
 JSON-ND or _**JSON with Named Datatypes**_ is a very simple extension to the [JSON format](https://json.org).  
 
 The specification describes a way to define _**specific data-types**_ for JSON elements and also allows for _**complex-data types to be defined**_ as interfaces.  This is far simpler, (but also less complete) than the [JSON Schema](https://json-schema.org/) approach because
-+ the data and defintion are not separated
++ the data and definition are not separated
 + and no prior knowledge is required by a service to use the definition. 
 
 
@@ -35,7 +35,7 @@ Implementations of JSON-ND should only consider the first occurrence of the colo
 
 The purpose of interpreting subsequent colons as data is to facilitate data-types that may include the colon character for its own purpose.  For example C++ uses as double colon ("::") as a namespace qualifier. This approach also allows the data-type to describe a method, its parameters and return type for the purposes of RPC calls.
 
-While using characters such as colons, braces and brackets in the name is valid json, the practice makes the object name inaccessible after a JSON.parse() call in Javascript.  This is fortunate and convenient as it forces the script to validate the received object before any qualified values are (easily) accessible to javascript code.  A very basic validator implementation is included as an example below.
+While using characters such as colons, braces and brackets in the name is valid JSON, the practice makes the object name inaccessible after a JSON.parse() call in Javascript.  This is fortunate and convenient as it forces the script to validate the received object before any qualified values are (easily) accessible to javascript code.  A very basic validator implementation is included as an example below.
  
 
 ## Data-type structure and style
@@ -48,7 +48,7 @@ In order to ensure the parsing system knows how to deal with the data-types, the
 where **language** refers to a specific language or specification used within the JSON document.
 
 
-The _**default language style**_ is defined as "_**Typescript**_". and when no style is specified, TypeScript MUST BE assumed.  Again the exact specification for "JSON-ND for Typescript" is out of scope and may be defined elsewhere.
+The _**default language style**_ is defined as "_**Typescript**_", and when no style is specified, TypeScript MUST BE assumed.  Again the exact specification for "JSON-ND for Typescript" is out of scope and may be defined elsewhere.
 
 There are strong arguments for selecting **TypeScript** to be the default language.  However the limitation of this is that **Number** data type is often the reason the type qualification is required.  
 
@@ -76,7 +76,7 @@ A complex type can be defined using an array of values or objects.  The **Interf
 The Element Name MAY BE empty.
 
 ## JSON-ND Mime Type
-The following MIME Type (to be used in the content-type of html headers) is defined to be _**application/json+nd**_ and the preferred file extension is _**.jsonnd**_. 
+The following MIME Type (to be used in html headers) is defined to be _**application/json+nd**_ and the preferred file extension is _**.jsonnd**_. 
 
 The use of this mime type is preferred however, as JSON-ND is always valid JSON, the standard JSON mime type (_application/json_) and the _.json_ file extension are acceptable.
 
@@ -98,92 +98,94 @@ Consideration should also be given to using the _**Parameter**_ option with the 
 ## JSON-ND Examples:
 
 ### Element Names
+```
+{ "useFactor" : 1 }
+```
 
-	{ "factor" : 1 }
-	
 Becomes:
-
-	{ "factor:boolean" : 1 }
+```
+{ "useFactor:boolean" : 1 }
+```
 
 
 ### Value Elements in JSON Array
 ```
-	[
-	"T520",
-	"H555", 
-	"To be: or not to be",
-	1,
-	true
-	]
+[
+"T520",
+"H555", 
+"To be: or not to be",
+1,
+true
+]
 ```
-	
+
 Becomes:
 ```
-	[
-	"T520:char[4]",
-	"T520:char[4]",
-	"To be\u003A or not to be:string",
-	"1:single",
-	"true:boolean"
-	]
-	
+[
+"T520:char[4]",
+"T520:char[4]",
+"To be\u003A or not to be:string",
+"1:single",
+"true:boolean"
+]
+
 ```
 ### When intent is not clear use data types, otherwise data type is optional 
 ```
-	[
-		"id" : 0,
-		"Name" : string;
-		"isLoggedIn:boolean" : 0
-	]
+[
+"id" : 0,
+"Name" : string;
+"isLoggedIn:boolean" : 0
+]
 ```
 
 ### Programming Language Styles (suggestion only)
 #### Typescript style:
 ```
-	  "count:BigInteger" : 1,
-	  "age:number" : 27.3,
-	  "arrivalTime:Date" : "15:23:02",0
-	  "dollarAmount:number" : 200.33,
-	  "arrayOfInt:number[]" : [1,2,3,4,5,6]
-	  "twoDArray:any[2][2]" : [ ["0,0","0,1"], ["1,0","1,1"] ]
-	}
-```	
+  "count:BigInteger" : 1,
+  "age:number" : 27.3,
+  "arrivalTime:Date" : "15:23:02",0
+  "dollarAmount:number" : 200.33,
+  "arrayOfInt:number[]" : [1,2,3,4,5,6]
+  "twoDArray:any[2][2]" : [ ["0,0","0,1"], ["1,0","1,1"] ]
+}
+```
 
 #### C++ style:
 ```
-	{ 
-	  ["JsonND" :{"version": 1.0,"style": "C++"},
-	  "count:short int" : 1,
-	  "age:float" : 27.3,
-	  "arrivalTime:std::tm" : "15:23:02",
-	  "dollarAmount:long double" : 200.33,
-	  "arrayOfInt:int[]" : [1,2,3,4,5,6]
-	  "twoDArray:string[2][2]" : [ ["0,0","0,1"], ["1,0","1,1"] ]
-	}
-```	
+{ 
+  ["JsonND" :{"version": 1.0,"style": "C++"},
+  "count:short int" : 1,
+  "age:float" : 27.3,
+  "arrivalTime:std::tm" : "15:23:02",
+  "dollarAmount:long double" : 200.33,
+  "arrayOfInt:int[]" : [1,2,3,4,5,6]
+  "twoDArray:string[2][2]" : [ ["0,0","0,1"], ["1,0","1,1"] ]
+}
+```
 #### C# style:
 ```
-	{ 
-	  ["JsonND" :{"version": 1.0,"style": "C#"},
-	  "count:int" : 1,
-	  "age:Single;f" : 27.3,
-	  "arrivalTime:DateTime" : "15:23:02",
-	  "dollarAmount:Decimal;m" : 200.33,
-	  "arrayOfInt:int[]" : [1,2,3,4,5,6]
-	  "twoDArray:string[2,2]" : [ ["0,0","0,1"], ["1,0","1,1"] ]
-	}
-```	
+{ 
+  ["JsonND" :{"version": 1.0,"style": "C#"},
+  "count:int" : 1,
+  "age:Single;f" : 27.3,
+  "arrivalTime:DateTime" : "15:23:02",
+  "dollarAmount:Decimal;m" : 200.33,
+  "arrayOfInt:int[]" : [1,2,3,4,5,6]
+  "twoDArray:string[2,2]" : [ ["0,0","0,1"], ["1,0","1,1"] ]
+}
+```
 #### Pascal style:
 ```
-	{ 
-	  ["JsonND" :{"version": 1.0,"style": "C++"},
-	  "count:integer" : 1,
-	  "age:single" : 27.3,
-	  "arrivalTime:datetime" : "15:23:02",
-	  "dollarAmount:currency" : 200.33,
-	  "arrayOfInt:array of integer" : [1,2,3,4,5,6]
-	  "twoDArray:array[0..1][0..1] of string" : [ ["0,0","0,1"], ["1,0","1,1"] ]
-	}
+{ 
+  ["JsonND" :{"version": 1.0,"style": "C++"},
+  "count:integer" : 1,
+  "age:single" : 27.3,
+  "arrivalTime:datetime" : "15:23:02",
+  "dollarAmount:currency" : 200.33,
+  "arrayOfInt:array of integer" : [1,2,3,4,5,6]
+  "twoDArray:array[0..1][0..1] of string" : [ ["0,0","0,1"], ["1,0","1,1"] ]
+}
 ```
 
 #### Methods 
@@ -203,34 +205,34 @@ The example above is in a C style, but could also be encoded in a pascal style
 C Style
 ```
 {
-	"PInteger:*int"
+"PInteger:*int"
 }
 ```
 Pascal Style
 ```
 {
-	"PInteger:^integer"
+"PInteger:^integer"
 }
 ```
 #### Enumerated types.
 ```
 { 
-	"RoleType:enum" :[
+"RoleType:enum" :[
     "admin:1",
     "accounts",
     "sales",
     "service"
-	]
+]
 }
 ```
 #### Simple Objects
 ```
 {
-	"User:Interface": [
-		"name:string",
-		"id:int",
-		"roles:RoleTypes[0,]"
-	]
+"User:Interface": [
+"name:string",
+"id:int",
+"roles:RoleTypes[0,]"
+]
 }
 ```
 
@@ -247,30 +249,31 @@ A class might include:
 
 First define a Class interface:
 ```
-	{ "Class:Interface" 
-	  [
-		  "private:any[0,]",
-		  "protected:any[0,]",
-		  "public:any[0,]",
-		  "published:any[0,]"
-		]
-	}
+{ "Class:Interface" 
+  [
+  "private:any[0,]",
+  "protected:any[0,]",
+  "public:any[0,]",
+  "published:any[0,]"
+]
+}
 ```
 
 Now define the User Class (using the User type and GetUser method type examples)
+```
 {
-	"UserClass:Class" : [
-		"private" : [
-			"_user:User",
-			"getUser:GetUser"
-		],
-		"public" : [
-			{"user:User as Property": "get getUser; set null",
-      "HasRole:function(role:RoleType):boolean"
-		]
-	]
+  "UserClass:Class" : [
+    "private" : [
+             "_user:User",
+             "getUser:GetUser"
+    ],
+    "public" : [
+             {"user:User as Property": ["get:getUser","set:null"],
+              "HasRole:function(role:RoleType):boolean"
+    ]
+  ]
 }
-
+```
 #### Javascript JSON-ND Validation
 Below is a very simple JSON-ND parser/validator. [demo](https://raw.githubusercontent.com/glenkleidon/JSON-ND/master/testJson-nd.html)
 ```
@@ -298,9 +301,12 @@ Below is a very simple JSON-ND parser/validator. [demo](https://raw.githubuserco
 </head>
 <body>
   <script>
-     var x = JSON_ND_Parse('{"abc:string":"abc contains a string", "def:integer" : "not a number"}');
-     document.write(JSON.stringify(x));
-	</script>
+    var nd = '{"abc:string":"abc contains a string", "def:integer" : "not a number"}'; 
+    document.write("<h3>Original 'nd' object:<pre>",nd,"<pre></h3>");  
+    document.write("See that 'nd.abc' has no value: abc=<b>" ,nd.abc,"</b>");
+    document.write("<h3>Then validate with JSON_ND_Parse:<pre>",JSON.stringify(JSON_ND_Parse(nd)),"</pre></h3>");
+    document.write("<p style='color: red'>Note that 'def' failed validation</p>");
+  </script>
 </body>    
 </html>
 ```

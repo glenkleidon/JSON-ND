@@ -22,8 +22,11 @@
 </head>
 <body>
   <script>
-     var x = JSON_ND_Parse('{"abc:string":"abc contains a string", "def:integer" : "not a number"}');
-     document.write(JSON.stringify(x));
+     var nd = '{"abc:string":"abc contains a string", "def:integer" : "not a number"}'; 
+     document.write("<h3>Original 'nd' object:<pre>",nd,"<pre></h3>");  
+    document.write("See that 'nd.abc' has no value: abc=<b>" ,nd.abc,"</b>");
+     document.write("<h3>Then validate with JSON_ND_Parse:<pre>",JSON.stringify(JSON_ND_Parse(nd)),"</pre></h3>");
+     document.write("<p style='color: red'>Note that 'def' failed validation</p>");
   </script>
 </body>    
 </html>

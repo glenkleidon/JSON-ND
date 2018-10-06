@@ -1,11 +1,11 @@
 # JSON-ND Format Specification V1.0
 
-JSON-ND or _**JSON with Named Datatypes**_ is a very simple extension to the (JSON format json.org)[https://json.org].  
+JSON-ND or _**JSON with Named Datatypes**_ is a very simple extension to the [JSON format](https://json.org).  
 The specification describes a way to define a _specific data-type_ for JSON elements and also allows for _complex-data types be be defined_ as interfaces.
 
 JSON-ND encoding is always valid JSON and all JSON is valid JSON-ND.    
 
-Inspired by (TypeScript)[https://www.typescriptlang.org] notation, all that is required is that _**the data-type is appended to the end of a JSON string**_.
+Inspired by [TypeScript](https://www.typescriptlang.org) notation, all that is required is that _**the data-type is appended to the end of a JSON string**_.
 
 ## Using JSON-ND
 

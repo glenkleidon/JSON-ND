@@ -54,7 +54,7 @@ The _**default language style**_ is defined as "_**Typescript**_", and when no s
 There are strong arguments for selecting **TypeScript** to be the default language.  However the limitation of this is that **Number** data type is often the reason the type qualification is required.  
 
 ## Defining Complex Types - the _Interface_ data-type
-A complex type can be defined using an array of values or objects.  The **Interface** data-type reserved for this purpose.  It is defined in the following way:
+A complex type can be defined using an array of values or objects.  The **Interface** data-type is reserved for this purpose.  It is defined in the following way:
 
 {
 "data-type name: **interface**" : "Name:data-type"}
@@ -274,7 +274,7 @@ Now define the User Class (using the User type and GetUser method type examples)
 }
 ```
 #### Javascript JSON-ND Validation
-Below is a very simple JSON-ND parser/validator. [demo](https://raw.githubusercontent.com/glenkleidon/JSON-ND/master/testJson-nd.html)
+Below is a very simple JSON-ND parser/validator. [raw source](https://raw.githubusercontent.com/glenkleidon/JSON-ND/master/testJson-nd.html)
 ```
 <html>
 <head>

@@ -1,0 +1,29 @@
+<html>
+<head>
+<script>
+  function JSON_ND_Parse(ndObj)
+  {
+    var obj = JSON.parse(ndObj);     
+    for (var propertyName in obj) {
+        var p = propertyName.indexOf(":");
+        var v = obj[propertyName];
+        if (p > 0) {
+            if (propertyName.substr(p+1,3)==='int' && !parseInt(v)) 
+            {
+                v=NaN;
+            }; // add more validation.
+            obj[propertyName.substr(0, p)] = v;
+            delete(obj[propertyName]);
+        }
+    };
+    return obj;
+  }
+</script>
+</head>
+<body>
+    <script>
+     var x = JSON_ND_Parse('{"abc:string":"abc contains a string", "def:integer" : "not a number"}');
+     document.write(JSON.stringify(x));
+</script>
+</body>    
+</html>

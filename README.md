@@ -36,6 +36,7 @@ Implementations of JSON-ND should only consider the first occurrence of the colo
 The purpose of interpreting subsequent colons as data is to facilitate data-types that may include the colon character for its own purpose.  For example C++ uses as double colon ("::") as a namespace qualifier. This approach also allows the data-type to describe a method, its parameters and return type for the purposes of RPC calls.
 
 While using characters such as colons, braces and brackets in the name is valid JSON, the practice makes the object name inaccessible after a JSON.parse() call in Javascript.  This is fortunate and convenient as it forces the script to validate the received object before any qualified values are (easily) accessible to javascript code.  A very basic validator implementation is included as an example below.
+[demo](https://raw.githubusercontent.com/glenkleidon/JSON-ND/master/testJson-nd.html)
  
 
 ## Data-type structure and style
@@ -144,7 +145,7 @@ Becomes:
 ```
   "count:BigInteger" : 1,
   "age:number" : 27.3,
-  "arrivalTime:Date" : "15:23:02",0
+  "arrivalTime:Date" : "15:23:02",
   "dollarAmount:number" : 200.33,
   "arrayOfInt:number[]" : [1,2,3,4,5,6]
   "twoDArray:any[2][2]" : [ ["0,0","0,1"], ["1,0","1,1"] ]
@@ -204,25 +205,23 @@ The example above is in a C style, but could also be encoded in a pascal style
 #### Single Value (type aliasing)
 C Style
 ```
-{
-"PInteger:*int"
-}
+{"PInteger:Interface": ":*int"}
 ```
 Pascal Style
 ```
-{
-"PInteger:^integer"
-}
+{"PInteger:Interface": ":^integer"}
+
+{"HResult:Interface": ":Int32"}
 ```
 #### Enumerated types.
 ```
 { 
-"RoleType:enum" :[
+  "RoleType:enum" :[
     "admin:1",
     "accounts",
     "sales",
     "service"
-]
+  ]
 }
 ```
 #### Simple Objects

@@ -2,7 +2,10 @@
 
 JSON-ND or _**JSON with Named Datatypes**_ is a very simple extension to the [JSON format](https://json.org).  
 
-The specification describes a way to define a _**specific data-type**_ for JSON elements and also allows for _**complex-data types be defined**_ as interfaces.
+The specification describes a way to define _**specific data-types**_ for JSON elements and also allows for _**complex-data types be defined**_ as interfaces.  This is far simpler, (but also less complete) than the [JSON Schema](https://json-schema.org/) approach because
++ the data and defintion are not separated
++ and no prior knowledge is required by a service to use the definition. 
+
 
 JSON-ND encoding is always valid JSON and all JSON is valid JSON-ND.    
 
@@ -19,8 +22,11 @@ per the JSON specification using UNICODE character \u003A), followed by the Colo
 
 **["Name:_data-type_"]**
 
-The term **"data-type"** is completely open and it should be interpreted to mean: _**A text string to describe the intended data type to the intended audience**_
-The data-type also includes Literal values in order to define constants.
+The term **"data-type"** is completely open and it should be interpreted to mean: 
+
+_**Text that describes how the associated value should be interpreted by the intended consumer**_. 
+
+A data-type MAY BE a literal value.
 
 It is expected that _more specific_ definitions for specific purposes (eg "JSON-ND for C Languages") will be defined in the future as extensions of this specification.
 
@@ -41,14 +47,15 @@ In order to ensure the parsing system knows how to deal with the data-types, the
 
 where **language** refers to a specific language or specification used within the JSON document.
 
-There is a strong argument for assuming **TypeScript** to be as the default language standard (where none is specified).  However the limitation of this is that Number data type is often the reason the type qualification is required. 
+There is a strong argument for selecting **TypeScript** to be the default language standard (where none is specified).  However the limitation of this is that **Number** data type is often the reason the type qualification is required.  
 
+The _**default language style**_ is defined as "_**Typescript**_". and when no style is specified, TypeScript MUST BE assumed.  Again the exact specification for "JSON-ND for Typescript" is out of scope and may be defined elsewhere.
 
 ## Defining Complex Types - the _Interface_ data-type
-A complex type can be defined using an array of values or objects.  The "Interface" data-type is defined in the following way:
+A complex type can be defined using an array of values or objects.  The **Interface** data-type reserved for this purpose.  It is defined in the following way:
 
 {
-"data-type name: **interface**" : [
+"data-type name: **interface**" : "Value" **OR** [
 
   "elementName1:data-type" **OR** {"elementName1:data-type":"value" **OR** [] },
 
@@ -58,6 +65,25 @@ A complex type can be defined using an array of values or objects.  The "Interfa
   ] 
 } 
 
+## JSON-ND Mime Type
+The following MIME Type (to be used in the content-type of html headers) is defined to be _**application/json+nd**_ and the preferred file extension is _**.jsonnd**_. 
+
+The use of this mime type is preferred however, as JSON-ND is always valid JSON, the standard JSON mime type (_application/json_) and the _.json_ file extension are acceptable.
+
+### The HTTP _**content-type**_ and _**accept**_ Headers
+For HTTP protocol responses, as per 
+ [rfc1341](https://www.w3.org/Protocols/rfc1341/4_Content-Type.html), the mime type to use as the JSON-ND mimetype as defined above 
+ 
+ `application/json+nd`
+
+Consideration should also be given to using the _**Parameter**_ option with the "style" attribute to define the language style.
+
+ Request Headers:
+ `accept: application/json+nd[; style=`_**language**_`]`
+
+ Response Header:
+ `content-type: application/json+nd[; style=`_**language**_`]`
+ 
 
 ## JSON-ND Examples:
 

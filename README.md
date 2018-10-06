@@ -36,7 +36,7 @@ Implementations of JSON-ND should only consider the first occurrence of the colo
 The purpose of interpreting subsequent colons as data is to facilitate data-types that may include the colon character for its own purpose.  For example C++ uses as double colon ("::") as a namespace qualifier. This approach also allows the data-type to describe a method, its parameters and return type for the purposes of RPC calls.
 
 While using characters such as colons, braces and brackets in the name is valid JSON, the practice makes the object name inaccessible after a JSON.parse() call in Javascript.  This is fortunate and convenient as it forces the script to validate the received object before any qualified values are (easily) accessible to javascript code.  A very basic validator implementation is included as an example below.
-[demo](https://raw.githubusercontent.com/glenkleidon/JSON-ND/master/testJson-nd.html)
+[demo](https://www.galkam.com.au/public/testjson-nd.html)
  
 
 ## Data-type structure and style

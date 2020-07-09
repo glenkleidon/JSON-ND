@@ -12,6 +12,10 @@ The specification describes a way to define _**specific data-types**_ for JSON e
 JSON-ND encoding is always valid JSON and all JSON is valid JSON-ND.    
 
 Inspired in part by [TypeScript](https://www.typescriptlang.org) notation, all that is required is that (optionally) _**the data-type be appended to the end of a JSON string**_.
+For Example:
+
+    {"id:integer": 23, "name:string":"Alice"}
+
 
 ## Using JSON-ND
 

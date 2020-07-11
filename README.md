@@ -32,16 +32,23 @@ The term **"data-type"** is completely open and it should be interpreted to mean
 
 _**Text that describes how the associated value should be interpreted by the intended consumer**_. 
 
-A data-type MAY BE a literal value.
+A data-type MAY BE a literal value - essentially to define a constant.
+eg `{"pi" : 3.14159}`
 
 When intent is not clear use data types, otherwise data type is optional 
 
 ```
 [
-"id" : 0,
-"Name" : "Alice";
-"isLoggedIn:boolean" : 0
-"amount:currency": 0.01
+    "id" : 0,
+    "Name" : "Alice";
+    "isLoggedIn:boolean" : 0
+    "amount:currency": 0.01,
+    "results:integer": [23,42,22]
+    "numbers": [
+       "1:boolean",
+       "234:decimal"
+       "54:currency"
+       ]
 ]
 ``` 
 

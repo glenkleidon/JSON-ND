@@ -33,7 +33,7 @@ The term **"data-type"** is completely open and it should be interpreted to mean
 _**Text that describes how the associated value should be interpreted by the intended consumer**_. 
 
 A data-type MAY BE a literal value - essentially to define a constant.
-eg `{"pi" : 3.14159}`
+eg `["pi:3.14159"]`
 
 When intent is not clear use data types, otherwise data type is optional 
 

@@ -4,66 +4,17 @@
 
 JSON-ND or _**JSON with Named Datatypes**_ is a very simple extension to the [JSON format](https://json.org).  
 
-## Purpose
-The specification describes a way to define _**simple data-types**_ for JSON elements and also allows for _**complex-data types to be defined**_ as interfaces. The primary purpose is to **remove ambiguity** and imply **precision** of the datatype from JSON values. 
-
-Eg The content of the following c# class is likely to loose precision on a remote service.
-
-```
-public class MyClass 
-{
-  public bool isAllowed;
-  public decimal cost = 0m;
-  value float value = 0;
-}
-
-```
-{ "isAllowed": 14, "cost": 54, value: 28.0000002  } 
-```
-
-The JSON notation does not provide sufficient information for (say) a Python application to correctly infer the 
-required type and therfore the correct overload of a method to use with the data. 
-
-A dynamically typed languge like Javascript may also create objects with properties of the wrong type.
-
-## JSON-ND defintion 
-
-To change JSON to JSON-ND, all that is required is that (optionally) _**the data-type be appended to the end of a JSON string**_.
-The term **"data-type"** is completely open and it should be interpreted to mean: 
-
-_**Text that describes how the associated value should be interpreted by the intended consumer**_. 
-
-
-### Element Example
-```
-{"id:integer": 23, "name:string":"Alice"}
-```
-
-### Array Example
-```
-["23.5:decimal"]
-```
-
-With this simple change, there is sufficient syntax to define **custom data types** and define **RPC methods**.
-
-This approach was Inspired in part by [TypeScript](https://www.typescriptlang.org) notation.  It is far simpler, 
-(but also less complete) than the [JSON Schema](https://json-schema.org/) approach because
+The specification describes a way to define _**specific data-types**_ for JSON elements and also allows for _**complex-data types to be defined**_ as interfaces.  This is far simpler, (but also less complete) than the [JSON Schema](https://json-schema.org/) approach because
 + the data and definition are not separated
 + and no prior knowledge is required by a service to use the definition. 
 
-Note: JSON-ND encoding is always valid JSON and all JSON is valid JSON-ND.  The name portion of JSON Element (as defined by json.org)
-does not exclude any specific characters: it is simply defined as a "string".  Browser based interpretters consider JSON-ND element names 
-valid although there are implications for referencing them without pre-processing.
 
-### RPC Method Examples
-The following represents a JSON-ND method defintion -in this case Pascal Style, 
+JSON-ND encoding is always valid JSON and all JSON is valid JSON-ND.    
 
-```
-{
-  "SquareRoot:function(value:integer):integer" : "https://some.server.com:999/sqrt" 
-}
-```
-Any language style is permitted and will depend on the consumer.
+Inspired in part by [TypeScript](https://www.typescriptlang.org) notation, all that is required is that (optionally) _**the data-type be appended to the end of a JSON string**_.
+For Example:
+
+    {"id:integer": 23, "name:string":"Alice"}
 
 
 ## Using JSON-ND
@@ -77,24 +28,28 @@ per the JSON specification using UNICODE character \u003A), followed by the colo
 
 **["Value:_data-type_"]**
 
+The term **"data-type"** is completely open and it should be interpreted to mean: 
+
+_**Text that describes how the associated value should be interpreted by the intended consumer**_. 
+
 A data-type MAY BE a literal value - essentially to define a constant.
 eg `["pi:3.14159"]`
 
 When intent is not clear use data types, otherwise data type is optional 
 
 ```
-{
+[
     "id" : 0,
     "Name" : "Alice";
     "isLoggedIn:boolean" : 0
     "amount:currency": 0.01,
-    "results:integer": [23,22,4],
+    "results:integer": [23,42,22]
     "numbers": [
        "1:boolean",
        "234:decimal"
        "54:currency"
        ]
-}
+]
 ``` 
 
 It is expected that _more specific_ definitions for specific purposes (eg "JSON-ND for C Languages") will be defined in the future as extensions of this specification.

@@ -1,13 +1,16 @@
 # JSON-ND Format Specification V1.0
 
--- DRAFT --
+__** -- DRAFT -- **__
 
 JSON-ND or _**JSON with Named Datatypes**_ is a very simple extension to the [JSON format](https://json.org).  
 
 ## Purpose
-The specification describes a way to define _**simple data-types**_ for JSON elements and also allows for _**complex-data types to be defined**_ as interfaces. The primary purpose is to **remove ambiguity** and imply **precision** of the datatype from JSON values. 
+The specification describes a way to _**qualify data types for JSON elements**_, to _**define complex-data types**_ and _**define Remote Method Calls**_ as interfaces. 
 
-Eg The content of the following c# class is likely to loose precision on a remote service.
+The primary purpose is to **remove ambiguity** and imply **precision** for JSON values when communicating between strongly typed and untyped language implementations of a 
+service using JSON format.
+
+For example, the content of the following C# class is likely to loose precision when sent to or received from, a remote service and may give the wrong result or cause a data type incompatibilty exception.
 
 ```
 public class MyClass 
@@ -16,69 +19,122 @@ public class MyClass
   public decimal cost = 0m;
   value float value = 0;
 }
-
-```
-{ "isAllowed": 14, "cost": 54, value: 28.0000002  } 
 ```
 
-The JSON notation does not provide sufficient information for (say) a Python application to correctly infer the 
-required type and therfore the correct overload of a method to use with the data. 
+The following JSON could be data in a transaction with this service:
+```
+{ "isAllowed": 1, "cost": 54, value: 28.0000002  } 
+```
 
-A dynamically typed languge like Javascript may also create objects with properties of the wrong type.
+The JSON notation does not provide sufficient information for (say) a Python application to correctly infer the required type and therfore the correct overload of a method to use with the received data. 
 
-## JSON-ND defintion 
+A dynamically typed languge like Javascript may also create objects with properties of the wrong type and cause exceptions when methods are executed.
 
-To change JSON to JSON-ND, all that is required is that (optionally) _**the data-type be appended to the end of a JSON string**_.
-The term **"data-type"** is completely open and it should be interpreted to mean: 
+## General Principles of the JSON-ND defintion 
+
+To translate JSON to JSON-ND, (optionally) **append the data-type to the end of the element name or value**.
+
+ The term **"data-type"** is completely open and it should be interpreted to mean: 
 
 _**Text that describes how the associated value should be interpreted by the intended consumer**_. 
 
 
 ### Element Example
+When using JSON-ND then following Standard JSON
 ```
-{"id:integer": 23, "name:string":"Alice"}
+{"id: 23, "name":"Alice", "results": [1,6,5]}
+```
+becomes:
+```
+{"id:integer": 23, "name:string":"Alice", "results:integer[]":[1,6,5]}
 ```
 
-### Array Example
+###  Mixed Array type Example
+Although mostly avoidable for standard array types, the follow format for mixed type JSON arrays can be used.
+
+The Standard JSON array
 ```
-["23.5:decimal"]
+[23, 1, "$22.04"]
+```
+becomes
+```
+["23:decimal", "1:boolean", ""22.04:currency"]
 ```
 
-With this simple change, there is sufficient syntax to define **custom data types** and define **RPC methods**.
+## More Complex data types
 
-This approach was Inspired in part by [TypeScript](https://www.typescriptlang.org) notation.  It is far simpler, 
-(but also less complete) than the [JSON Schema](https://json-schema.org/) approach because
+With this simple convention, there is sufficient syntax to define **custom data types** and define **remote methods**.
+
+This approach is far simpler, (but also less complete) than the [JSON Schema](https://json-schema.org/) approach because
+
 + the data and definition are not separated
 + and no prior knowledge is required by a service to use the definition. 
 
-Note: JSON-ND encoding is always valid JSON and all JSON is valid JSON-ND.  The name portion of JSON Element (as defined by json.org)
-does not exclude any specific characters: it is simply defined as a "string".  Browser based interpretters consider JSON-ND element names 
-valid although there are implications for referencing them without pre-processing.
+_Note: JSON-ND encoding is always valid JSON and all JSON is valid JSON-ND.  The name portion of JSON Element (as defined by json.org)
+does not exclude any specific characters: it is simply defined as a "string".  Browser based interpretters consider JSON-ND element names valid although there are implications for referencing them without pre-processing._
 
-### RPC Method Examples
-The following represents a JSON-ND method defintion -in this case Pascal Style, 
+### Remote Method Examples
+The following represents a JSON-ND method defintion -in this case Pascal Style.  The may be different specification for different consumers of the data.
 
 ```
 {
   "SquareRoot:function(value:integer):integer" : "https://some.server.com:999/sqrt" 
 }
 ```
-Any language style is permitted and will depend on the consumer.
+
+Any language style is permitted and is in no way restricted or defined in this specification. The method is unabiguous as you know not to call this method with floating point values.  Again depending on the consumer, you may need to qualify the datatype allowed using a language specific construct (eg with RegularExpression for Javascript) to enforce non-floating point restriction.
 
 
-## Using JSON-ND
+## The JSON-ND Specification
 
-To encode data using JSON ND when using Name/Value pairs, just add a colon character (":") and the data-type after **Element Name** within the JSON string.
+### 1. Qualifying The Data-type of a Name Value Pair
+To encode data using JSON ND when using Name/Value pairs, append a colon character (":") and the data-type after **Element Name** within the JSON string.
 
-**{"Name:_data-type_" : value}**
+**{"Name:_data-type_**[**_[\<lowerlimit\>_**[**_,\<upperlimit\>_**]**_]_**]**" : value}**
 
-For **Value elements** contained within a JSON Array, a JSON string is used.  The data element is encoded as a JSON string where literal colons SHOULD BE escaped (as
-per the JSON specification using UNICODE character \u003A), followed by the colon character (":") and the data-type.  
+ It is OPTIONAL to use a qualifier. Defining an array lower limit and upper limit are optional.  
 
-**["Value:_data-type_"]**
+### 2. Qualifying The Data-type of Value Elements for Mixed Array Types
+For **Value elements** contained within a mixed type JSON Array, optionally convert the data element to a JSON string, then     append a colon character (":") and the data-type. 
+**["Value:_data-type_**[**_[\<lowerlimit\>_**[**_,\<upperlimit\>_**]**_]_**]**"]**
+
+ + This method MUST NOT be used for Object type values.
+ + The string value SHOULD escape any  (as per the JSON specification using UNICODE character \u003A), followed by the colon character (":") then the data-type.
+ + see notes on use of colons in value data type definitions below  
+
+### 3. Defining Complex Types as Interfaces
+Complex data types may be defined by appending the **_Reserved KeyWord_** `Interface` to the name of a JSON Element.
+There are two forms:
+
+#### Complex Type: Array Form
+      {
+        "<Type name>:Interface" : [
+          "<Property Name>:<data-type>",
+          ...
+        ]
+      }
+
+#### Complex Type: Object form
+
+      {
+        "<Type name>:Interface" {
+          "<Property Name>": "<data-type>,
+          ...
+        }
+      }
+
+Implementations MUST support complex types of any nested depth and or complexity utilising any type **already encountered by the parser** or any implied type for the consumer's language.  Implementations MUST support data-types **yet to be encountered by the parser** if the consumer language supports that feature.
+
+
+
+### 4. Defining Type Aliases and Constants
+eg `["pi:3.14159"]`
+
+### 4. Defining Remote Methods Calls
+
+### 5. Defining Constants
 
 A data-type MAY BE a literal value - essentially to define a constant.
-eg `["pi:3.14159"]`
 
 When intent is not clear use data types, otherwise data type is optional 
 

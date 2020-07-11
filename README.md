@@ -7,8 +7,7 @@ JSON-ND or _**JSON with Named Datatypes**_ is a very simple extension to the [JS
 ## Purpose
 The specification describes a way to _**qualify data types for JSON elements**_, to _**define complex-data types**_ and _**define Remote Method Calls**_ as interfaces. 
 
-The primary purpose is to **remove ambiguity** and imply **precision** for JSON values when communicating between strongly typed and untyped language implementations of a 
-service using JSON format.
+The primary purpose is to **remove ambiguity** and imply **precision** for JSON values when communicating between strongly typed and untyped language implementations of a service using JSON format.
 
 For example, the content of the following C# class is likely to loose precision when sent to or received from, a remote service and may give the wrong result or cause a data type incompatibilty exception.
 
@@ -48,6 +47,8 @@ becomes:
 ```
 {"id:integer": 23, "name:string":"Alice", "results:integer[]":[1,6,5]}
 ```
+_Note: JSON-ND encoding is always valid JSON and all JSON is valid JSON-ND.  The name portion of JSON Element (as defined by json.org)
+does not exclude any specific characters: it is simply defined as a "string".  Browser based interpretters consider JSON-ND element names valid although there are implications for referencing them without pre-processing._
 
 ###  Mixed Array type Example
 Although mostly avoidable for standard array types, the follow format for mixed type JSON arrays can be used.
@@ -58,7 +59,7 @@ The Standard JSON array
 ```
 becomes
 ```
-["23:decimal", "1:boolean", ""22.04:currency"]
+["23:decimal", "1:boolean", "22.04:currency"]
 ```
 
 ## More Complex data types
@@ -70,8 +71,31 @@ This approach is far simpler, (but also less complete) than the [JSON Schema](ht
 + the data and definition are not separated
 + and no prior knowledge is required by a service to use the definition. 
 
-_Note: JSON-ND encoding is always valid JSON and all JSON is valid JSON-ND.  The name portion of JSON Element (as defined by json.org)
-does not exclude any specific characters: it is simply defined as a "string".  Browser based interpretters consider JSON-ND element names valid although there are implications for referencing them without pre-processing._
+### Enumerated type Example
+Here is an example enumerated type
+```
+{ 
+  "RoleType:enum" :[
+    "admin:1",
+    "accounts",
+    "sales",
+    "service"
+  ]
+}
+```
+### Complex Object type Example using defined type
+Yiou can create complex types utilizing pre-defined types
+```
+{
+  "User:Interface": [
+        "name:string",
+        "id:int",
+        "roles:RoleTypes[0,]"
+    ]
+}
+```
+
+
 
 ### Remote Method Examples
 The following represents a JSON-ND method defintion -in this case Pascal Style.  The may be different specification for different consumers of the data.
@@ -385,15 +409,7 @@ The slightly more standard and intuitive, but more verbose version:
 
 OR, as it has been defined here, the following which form
 
-```
-{
-  "User:Interface": [
-        "name:string",
-        "id:int",
-        "roles:RoleTypes[0,]"
-    ]
-}
-```
+
 The latter may actually more easily interpretted in the wild as it is already int the form used for processing.
 
 

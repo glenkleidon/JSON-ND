@@ -120,9 +120,10 @@ Becomes:
 [
 "T520",
 "H555", 
-"To be: or not to be",
+"To be: Or not to be",
 1,
-true
+true,
+0
 ]
 ```
 
@@ -131,9 +132,10 @@ Becomes:
 [
 "T520:char[4]",
 "T520:char[4]",
-"To be\u003A or not to be:string",
+"To be\u003A Or not to be:string",
 "1:single",
-"true:boolean"
+"true:boolean",
+"0:currency"
 ]
 
 ```
@@ -141,8 +143,9 @@ Becomes:
 ```
 [
 "id" : 0,
-"Name" : string;
+"Name" : "Alice";
 "isLoggedIn:boolean" : 0
+"amount:currency": 0.01
 ]
 ```
 
@@ -151,10 +154,11 @@ Becomes:
 ```
   "count:BigInteger" : 1,
   "age:number" : 27.3,
+  "cost:
   "arrivalTime:Date" : "15:23:02",
   "dollarAmount:number" : 200.33,
   "arrayOfInt:number[]" : [1,2,3,4,5,6]
-  "twoDArray:any[2][2]" : [ ["0,0","0,1"], ["1,0","1,1"] ]
+  "twoDArray:any[2][2]" : [ ["one","two"], ["three","four"] ]
 }
 ```
 
@@ -179,7 +183,7 @@ Becomes:
   "arrivalTime:DateTime" : "15:23:02",
   "dollarAmount:Decimal;m" : 200.33,
   "arrayOfInt:int[]" : [1,2,3,4,5,6]
-  "twoDArray:string[2,2]" : [ ["0,0","0,1"], ["1,0","1,1"] ]
+  "twoDArray:string[2,2]" : [ ["one","two"], ["three","four"] ]
 }
 ```
 #### Pascal style:
@@ -191,11 +195,11 @@ Becomes:
   "arrivalTime:datetime" : "15:23:02",
   "dollarAmount:currency" : 200.33,
   "arrayOfInt:array of integer" : [1,2,3,4,5,6]
-  "twoDArray:array[0..1][0..1] of string" : [ ["0,0","0,1"], ["1,0","1,1"] ]
+  "twoDArray:array[0..1][0..1] of string" : [ ["one","two"], ["three","four"] ]
 }
 ```
 
-#### Methods 
+### Methods 
 Given a method **GetUser** with parameters "id" (integer) and "options" (UserEnum) which returns a "User" object, 
 the data COULD BE encoded as follows:
 ```

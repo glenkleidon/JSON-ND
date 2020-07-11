@@ -258,7 +258,7 @@ A class might include:
 
 First define a Class interface:
 ```
-{ "Class:Interface" 
+{ "Class:Interface": 
   [
   "private:any[0,]",
   "protected:any[0,]",

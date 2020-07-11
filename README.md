@@ -139,18 +139,18 @@ A data-type MAY BE a literal value - essentially to define a constant.
 When intent is not clear use data types, otherwise data type is optional 
 
 ```
-{
+[
     "id" : 0,
     "Name" : "Alice";
     "isLoggedIn:boolean" : 0
     "amount:currency": 0.01,
-    "results:integer": [23,22,4],
+    "results:integer": [23,42,22]
     "numbers": [
        "1:boolean",
        "234:decimal"
        "54:currency"
        ]
-}
+]
 ``` 
 
 It is expected that _more specific_ definitions for specific purposes (eg "JSON-ND for C Languages") will be defined in the future as extensions of this specification.

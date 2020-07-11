@@ -28,11 +28,10 @@ per the JSON specification using UNICODE character \u003A), followed by the colo
 
 **["Value:_data-type_"]**
 
-In the case where multiple colons exist in the string and NO colons have been escaped, the FINAL colon is TO BE interpretted as the datatype (ie simple datatype name) eg
+In the case where multiple colons exist in the string and NO colons have been escaped (to improve human readability), the FINAL colon is TO BE interpretted as the datatype (ie simple datatype name).  This is a particular problem for URI's so you MUST include the data-type othewise the interpreter will be confused. eg
 
-**["https://wwww.some.site.com:99:URL]"** is to be interpretted as "https://www.some.site.com:99" as type "URL"
-**["GetUser:function(
-
+**["https://wwww.some.site.com:99:URI"]** is to be interpretted as  "https://www.some.site.com:99" as type "URI"
+**["https://wwww.some.site.com:99"]** however will be interpretted as  "https://www.some.site.com" as type "99"
 
 
 The term **"data-type"** is completely open and it should be interpreted to mean: 

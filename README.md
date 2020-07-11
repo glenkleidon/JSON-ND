@@ -28,17 +28,22 @@ per the JSON specification using UNICODE character \u003A), followed by the colo
 
 **["Value:_data-type_"]**
 
-In the case where multiple colons exist in the string and NO colons have been escaped (to improve human readability), the FINAL colon is TO BE interpretted as the datatype (ie simple datatype name).  This is a particular problem for URI's so you MUST include the data-type othewise the interpreter will be confused. eg
-
-**["https://wwww.some.site.com:99:URI"]** is to be interpretted as  "https://www.some.site.com:99" as type "URI"
-**["https://wwww.some.site.com:99"]** however will be interpretted as  "https://www.some.site.com" as type "99"
-
-
 The term **"data-type"** is completely open and it should be interpreted to mean: 
 
 _**Text that describes how the associated value should be interpreted by the intended consumer**_. 
 
 A data-type MAY BE a literal value.
+
+When intent is not clear use data types, otherwise data type is optional 
+
+```
+[
+"id" : 0,
+"Name" : "Alice";
+"isLoggedIn:boolean" : 0
+"amount:currency": 0.01
+]
+``` 
 
 It is expected that _more specific_ definitions for specific purposes (eg "JSON-ND for C Languages") will be defined in the future as extensions of this specification.
 
@@ -46,6 +51,12 @@ It is expected that _more specific_ definitions for specific purposes (eg "JSON-
 Implementations of JSON-ND should only consider the first occurrence of the colon (":") character. Subsequent colons MAY or MAY NOT be escaped as desired and MUST BE considered as data, and NOT a delimiter.
 
 The purpose of interpreting subsequent colons as data is to facilitate data-types that may include the colon character for its own purpose.  For example C++ uses as double colon ("::") as a namespace qualifier. This approach also allows the data-type to describe a method, its parameters and return type for the purposes of RPC calls.
+
+In the case where multiple colons exist in the string and NO colons have been escaped (to improve human readability), the FINAL colon is TO BE interpretted as the datatype (ie simple datatype name).  This is a particular problem for URI's so you MUST include the data-type othewise the interpreter will be confused. eg
+
+**["https://wwww.some.site.com:99:URI"]** is to be interpretted as  "https://www.some.site.com:99" as type "URI"
+**["https://wwww.some.site.com:99"]** however will be interpretted as  "https://www.some.site.com" as type "99"
+
 
 While using characters such as colons, braces and brackets in the name is valid JSON, the practice makes the object name inaccessible after a JSON.parse() call in Javascript.  This is fortunate and convenient as it forces the script to validate the received object before any qualified values are (easily) accessible to javascript code.  A very basic validator implementation is included as an example below.
 [demo](https://www.galkam.com.au/public/testjson-nd.html)
@@ -144,15 +155,6 @@ Becomes:
 "0:currency"
 ]
 
-```
-### When intent is not clear use data types, otherwise data type is optional 
-```
-[
-"id" : 0,
-"Name" : "Alice";
-"isLoggedIn:boolean" : 0
-"amount:currency": 0.01
-]
 ```
 
 ### Programming Language Styles (suggestion only)

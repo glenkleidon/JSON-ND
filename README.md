@@ -23,10 +23,17 @@ To encode data using JSON ND when using Name/Value pairs, just add a colon chara
 
 **{"Name:_data-type_" : value}**
 
-For **Value elements** contained within a JSON Array, a JSON string is used.  The data element is encoded as a JSON string with any literal colons escaped (as
-per the JSON specification using UNICODE character \u003A), followed by the colon character (":") and the data-type. 
+For **Value elements** contained within a JSON Array, a JSON string is used.  The data element is encoded as a JSON string where literal colons SHOULD BE escaped (as
+per the JSON specification using UNICODE character \u003A), followed by the colon character (":") and the data-type.  
 
 **["Value:_data-type_"]**
+
+In the case where multiple colons exist in the string and NO colons have been escaped, the FINAL colon is TO BE interpretted as the datatype (ie simple datatype name) eg
+
+**["https://wwww.some.site.com:99:URL]"** is to be interpretted as "https://www.some.site.com:99" as type "URL"
+**["GetUser:function(
+
+
 
 The term **"data-type"** is completely open and it should be interpreted to mean: 
 
@@ -200,6 +207,8 @@ Becomes:
 ```
 
 ### Methods 
+
+#### Method Types
 Given a method **GetUser** with parameters "id" (integer) and "options" (UserEnum) which returns a "User" object, 
 the data COULD BE encoded as follows:
 ```
@@ -210,6 +219,21 @@ The example above is in a C style, but could also be encoded in a pascal style
 ```
   { "GetUser:function(Id:integer;Options:UserEnum):User" : "https://userserver/api/getuser" }
 ```
+or REST API call
+```
+  { "GetUser:GET(Id:integer;Options:UserEnum):User" : "https://userserver/api/getuser" }
+```
+#### Return Types
+
+Return types are implied as n-dimensional arrays of the expected return type, so if no array length is defined, n-length with
+zero base is implied. Eg the following are equivalent
+```
+  { "GetUser:GET(Id:integer;Options:UserEnum):User" : "https://userserver/api/getuser" }
+```
+```
+  { "GetUser:GET(Id:integer;Options:UserEnum):User[0,]" : "https://userserver/api/getuser" }
+```
+
 ### Interface Examples
 
 #### Single Value (type aliasing)
@@ -235,15 +259,34 @@ Pascal Style
 }
 ```
 #### Simple Objects
+There are two acceptable forms for defining Objects:
+
+The slightly more standard and intuitive, but more verbose version:
+
 ```
+{"HResult:Interface": ":Int32"}
 {
-"User:Interface": [
-"name:string",
-"id:int",
-"roles:RoleTypes[0,]"
-]
+  "User:Interface": [
+      {"name":"string"},
+      {"id":"int"},
+      {"roles" :"RoleTypes[0,]"}
+  ]
 }
 ```
+
+OR, as it has been defined here, the following which form
+
+```
+{
+  "User:Interface": [
+        "name:string",
+        "id:int",
+        "roles:RoleTypes[0,]"
+    ]
+}
+```
+The latter may actually more easily interpretted in the wild as it is already int the form used for processing.
+
 
 
 #### Class Data Types 

@@ -2,14 +2,31 @@
 
 __** -- DRAFT -- **__
 
-JSON-ND or _**JSON with Named Datatypes**_ is a very simple extension to the [JSON format](https://json.org).  
+JSON-ND or _**JSON with Named Datatypes**_ is a very simple "extension" to the [JSON format](https://json.org).  
+
+## Introduction
+The specification describes a way to _**qualify data types for JSON elements**_, to _**define complex-data types**_ and provides a way _**define Remote Method Calls**_. 
+
+The primary purpose is to **include type information** in JSON elements.  This is most useful when communicating between strongly typed and untyped language implementations of a service using JSON format.
+
+While this can be done easily using multiple JSON elements for each piece of data, this can is moderately inefficient.  
+
+JSON-ND uses the fact that the JSON specification does not restrict what characters may or may not be used in the "name" element of a JSON Value pair: it is simply defined as a JSON String.
+
+For example, the following JSON Element is valid in all current browser implementations:
+
+```
+{ "name:string": "Alice" }
+```
+This fact allows a very simple and efficient means to fully qualify the data type in JSON.
+
+The are implications for referencing the created Javascript object however so a JSON-ND pre-parser will be used to ensure the intended property name is used and the correct type is applied.
 
 ## Purpose
-The specification describes a way to _**qualify data types for JSON elements**_, to _**define complex-data types**_ and _**define Remote Method Calls**_ as interfaces. 
 
-The primary purpose is to **remove ambiguity** and imply **precision** for JSON values when communicating between strongly typed and untyped language implementations of a service using JSON format.
+When working with dynamic languages (or with dynamic structures in typed languages), it is often necessary to check what data type a incoming element is in order to work with it correctly. 
 
-For example, the content of the following C# class is likely to loose precision when sent to or received from, a remote service and may give the wrong result or cause a data type incompatibilty exception.
+For example, the content of the following C# class is likely to loose precision when sent to or received from, a remote service. It may give the wrong result or cause a data type incompatibilty exception.
 
 ```
 public class MyClass 
@@ -20,12 +37,18 @@ public class MyClass
 }
 ```
 
-The following JSON could be data in a transaction with this service:
+The following JSON could be data in a transaction with this class:
 ```
-{ "isAllowed": 1, "cost": 54, value: 28.0000002  } 
+{
+    "isAllowed": 1,
+    "cost": 54,
+    value: 28.0000002
+}
 ```
 
-The JSON notation does not provide sufficient information for (say) a Python application to correctly infer the required type and therfore the correct overload of a method to use with the received data. 
+The JSON notation does not provide sufficient information for (say) a Python application to correctly infer the required type and therfore the correct overload of a method to use with the received data.
+
+In strongly typed languages, the violation of the float range in this example may cause an incompatible data type exception in a .Net consumer.
 
 A dynamically typed languge like Javascript may also create objects with properties of the wrong type and cause exceptions when methods are executed.
 
@@ -37,6 +60,60 @@ To translate JSON to JSON-ND, (optionally) **append the data-type to the end of 
 
 _**Text that describes how the associated value should be interpreted by the intended consumer**_. 
 
+In order to qualify what type is being used, an optional language style can be specified in the form of a JSON-ND object:
+
+"Json-ND" :{"version": 1.0,"style": "_**language**_"[, data:{}]}
+
+JSON-ND can be passed without the style element where entities within a JSON transaction assume a pre-arranged language style.
+```
+{
+    "id:UInt32": 345,
+    "name:string": "Bob",
+    "cost:currency": 1400
+}
+```
+
+In cases where there is no pre-arranged style, the style qualifier can be added as an additional element.
+
+```
+{
+    "Json-ND": {"version": 1.0,"style": "pascal"}
+    "id:UInt32": 345,
+    "name:string": "Bob",
+    "cost:currency": 1400
+}
+```
+
+A fully qualified JSON-ND Object can also be used:
+
+```
+{
+    "Json-ND": {
+        "version": 1.0,
+        "style": "pascal",
+        "data": {
+            "id:UInt32": 345,
+            "name:string": "Bob",
+            "cost:currency": 1400
+        }
+    }
+}
+```
+
+In the case where the consumer may not be know (public APIs), multiple comsumer language versions of the definition can be generated depending on the intended consumer of the definition (eg C++, C#, Pascal, GO).
+
+The alternative is to use a "default" language specification such as [XSD Built-in Types](https://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html#built-in-datatypes) 
+```
+"Json-ND" :{"version": 1.0,"style": "http://www.w3.org/2001/XMLSchema-datatypes"}
+``` 
+
+
+or [Typescript](https://www.typescriptlang.org/) 
+```
+"Json-ND" :{"version": 1.0,"style": "typescript"}
+``` 
+
+Unfortunately, there are limitations to both of these language styles - XSD provides very good reference for data types, but overly verbose methods for defining remote procedure calls, and Typescript (as it current stands) still has a limited list of primitive data types.
 
 ### Element Example
 When using JSON-ND then following Standard JSON
@@ -49,6 +126,11 @@ becomes:
 ```
 _Note: JSON-ND encoding is always valid JSON and all JSON is valid JSON-ND.  The name portion of JSON Element (as defined by json.org)
 does not exclude any specific characters: it is simply defined as a "string".  Browser based interpretters consider JSON-ND element names valid although there are implications for referencing them without pre-processing._
+
+For Typescript, any ambiguous data-types can be qualified with a regular expression. For the 
+
+
+{}
 
 ###  Mixed Array type Example
 Although mostly avoidable for standard array types, the follow format for mixed type JSON arrays can be used.
@@ -199,7 +281,7 @@ This specification **DOES NOT** define any specific data types except for the **
 
 In order to ensure the parsing system knows how to deal with the data-types, the following qualifying element **CAN BE** prefixed to the JSON message:
 
-"JsonND" :{"version": 1.0,"style": "_**language**_"}
+"Json-ND" :{"version": 1.0,"style": "_**language**_"}
 
 where **language** refers to a specific language or specification used within the JSON document.
 

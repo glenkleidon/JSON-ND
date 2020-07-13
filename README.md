@@ -2,31 +2,89 @@
 
 __** -- DRAFT -- **__
 
-JSON-ND or _**JSON with Named Datatypes**_ is a very simple "extension" to the [JSON format](https://json.org).  
+JSON-ND or _**JSON with Named Datatypes**_ is a very simple way to include a Data-Type in [JSON](https://json.org) (_the JSON Post_) data as described in The JSON Data Interchange Syntax standard [ECMA-ST-ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf) (_the JSON standard_).
+
+The technique uses the "name" element of JSON value pairs in the specification to convey the data-type.
+
+_The JSON standard_ ECMA-ST-ECMA-404, paragraph 6, states that: 
+```
+A name is _string._ The JSON syntax does not impose any restrictions on the strings used as names, does not require that name strings be unique, and does not assign any significance to the ordering of name/value pairs...
+```
+This removes the previously ambigous term "name" which, as a result of an omission of a definition of the term name in 2 of 3 parts of _the JSON Post_.  The term "name" was described only in the text of _the JSON Post_, but not included in the McKeeman Form or Workflow diagrams of the original post. 
+
+This means, by agreed convention, it is possible to remove the ambiguity of the intended data type by **appending the data-type to the element name**.
+
+For example the potentially ambigous JSON object below: 
+```
+{ "name:string": "Alice", "isActive": 0 }
+```
+can be unambigously qualified as:
+
+```
+{ "name:string": "Alice", "isActive:boolean": 0  }
+```
+Both forms of this JSON object is valid JSON in most, if not all, modern browser Javascript implementations.
+
+This fact allows a very simple and efficient means to fully qualify the data type in JSON.  
 
 ## Introduction
-The specification describes a way to _**qualify data types for JSON elements**_, to _**define complex-data types**_ and provides a way _**define Remote Method Calls**_. 
 
-The primary purpose is to **include type information** in JSON elements.  This is most useful when communicating between strongly typed and untyped language implementations of a service using JSON format.
+This specification describes the semantics required to efficiently _**qualify data types for JSON elements**_, to _**define complex-data types**_ and provides a means of _**defining Remote Method Calls**_ using JSON. 
 
-While this can be done easily using multiple JSON elements for each piece of data, this can is moderately inefficient.  
+The primary purpose is to **reduce or eleminate ambiguity** of JSON values by **including type information** in the JSON string and/or values.  This is most useful when using JSON to communicate between strongly typed and untyped language implementations of a service; or with a strongly typed language using a dynamic data structure where the exact data type may not be fully known at compile time. 
 
-JSON-ND uses the fact that the JSON specification does not restrict what characters may or may not be used in the "name" element of a JSON Value pair: it is simply defined as a JSON String.
-
-For example, the following JSON Element is valid in all current browser implementations:
-
+While this can be done easily using multiple JSON elements for each piece of data, 
 ```
-{ "name:string": "Alice" }
+{"name":{ "type": "string", "data": "Alice"}}
 ```
-This fact allows a very simple and efficient means to fully qualify the data type in JSON.
+this can be moderately inefficient often more than doubling the message length; or by having a pre-processing section in the message header.
+```
+{ 
+  "types": {
+    "name": "string"
+  },
+  "name": "Alice"
+}
+```
+which is generally more efficient than the first form, especially for repeating elements.
 
-The are implications for referencing the created Javascript object however so a JSON-ND pre-parser will be used to ensure the intended property name is used and the correct type is applied.
+The JSON-ND form represents the same element as 
+```
+{ "name:string" : "Alice" }
+```
+which is smaller, and may have lower memory overhead and parsing advantages over the previous two implementations.
+
+The JSON-ND specification also allows for unambiguous elements to be un-qualified, so the form
+```
+{ "name":"Alice", "isActive": false, "amount:currency": 32 } 
+```
+is valid JSON-ND.  The JSON-ND specification states that 
+
+**_All JSON is valid JSON-ND, and all JSON-ND_** **MUST BE** **_valid JSON._**
+
+In order to handle JSON Arrays of mixed type, the JSON-ND specification also specifies a convention for encoding mixed type JSon Array values by appending the data type to value and specifying the type of **_ndMixedType[]_** data-type. For example: 
+```
+{
+  "stuff:ndMixedType[]" : [
+    "Alice:string",
+    true,
+    "1:currency",
+    ""To be\u003A Or not to be:string"
+  ]
+}
+```
+The JSON-ND specification states that the data-type qualifier is **_always_** optional, even for mixed type Json Arrays. This means that two services need to know if the messages are JSON-ND or simply JSON to ensure the destinction can be made. 
+
+the HTTP Header "Content-Type" is generally sufficient for this in most cases.  The specification defines the Content Type as  Where the transport layer between two services is NOT HTTP, the services consuming messages 
+
 
 ## Purpose
 
 When working with dynamic languages (or with dynamic structures in typed languages), it is often necessary to check what data type a incoming element is in order to work with it correctly. 
 
 For example, the content of the following C# class is likely to loose precision when sent to or received from, a remote service. It may give the wrong result or cause a data type incompatibilty exception.
+
+This is particularly the case with number types where the precision may be lost during the serialization of the element. Currency is generally ambigous as there is no indicator of the precision of a JSON number. There are also some implementation (particularly legacy systems) where a dynamically typed custom structure may not have a modern equivalent (eg DCOM implementations which ) 
 
 ```
 public class MyClass 
@@ -114,6 +172,8 @@ or [Typescript](https://www.typescriptlang.org/)
 ``` 
 
 Unfortunately, there are limitations to both of these language styles - XSD provides very good reference for data types, but overly verbose methods for defining remote procedure calls, and Typescript (as it current stands) still has a limited list of primitive data types.
+
+As there is likely to be no easy consensus on what the default language should be, this specification does not define a default language style.
 
 ### Element Example
 When using JSON-ND then following Standard JSON

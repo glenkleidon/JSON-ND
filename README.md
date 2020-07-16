@@ -10,7 +10,7 @@ _The JSON standard_ ECMA-ST-ECMA-404, paragraph 6, states that:
 ```
 A name is _string._ The JSON syntax does not impose any restrictions on the strings used as names, does not require that name strings be unique, and does not assign any significance to the ordering of name/value pairs...
 ```
-This removes the previously ambigous term "name" which, as a result of an omission of a definition of the term in 2 of 3 parts of [JSON Syntax](https://json.org) (_the JSON Post_), left the intent un-clear.  The term "name" was described only in the text of _the JSON Post_, but not included in the McKeeman Form or Workflow diagrams of _the JSON Post_. 
+This removes the previously ambigous term "name" which, as a result of an omission of a definition of the term in 2 of 3 parts of [JSON Syntax](https://json.org) (_the JSON Post_), left the intent un-clear.  The term "name" was described only in the text of _the JSON Post_, but not included in the McKeeman Form or Workflow diagrams. 
 
 This means, by agreed convention, it is possible to convey and unambiguous data-type in JSON syntax by **appending the data-type to the element name**.
 
@@ -23,84 +23,158 @@ can be unambigously qualified as:
 ```
 { "name:string": "Alice", "isActive:boolean": 0  }
 ```
-Both forms of this JSON object are valid JSON in most, if not all, modern browser Javascript implementations.
+Both forms of this JSON object are valid JSON in most, if not all, modern browser Javascript implementations(citation?).
 
 This fact allows a very simple and efficient means to fully qualify the data type in JSON syntax.  
 
 ## Introduction
-This specification describes the semantics required to efficiently _**qualify data types for JSON elements**_, to _**define complex-data types**_ and provides a means of _**defining Remote Method Calls**_ using JSON. 
+This specification describes the semantics required to efficiently _**qualify data types for JSON elements**_, to _**define complex-data types**_ and provides a means to _**define Remote Method Calls**_ using JSON. 
 
-The JSON-ND specification states that:
-
-**_All JSON is valid JSON-ND, and all JSON-ND_** **MUST BE** **_valid JSON._**
-
-The primary purpose of _the specification_ is to **reduce or eleminate ambiguity** of JSON values by **including type information** in the JSON string and/or value.
+The primary purpose of _the specification_ is to **reduce or eleminate ambiguity** of JSON values by **including type information** in the JSON string (name) and/or value.
 
 This is most useful when using JSON syntax to communicate between strongly typed and untyped language implementations of a service; or with a strongly typed language using a dynamic data structure where the exact data type may not be fully known at compile time. 
 
-While unambigous typing can be encoded easily using multiple JSON elements for each piece of data, 
+## JSON-ND syntax
+
+The JSON-ND specification states that:
+
+### Qualifying data types
+
+**_All JSON is valid JSON-ND, and all JSON-ND_** **MUST BE** **_valid JSON._**
+
+While unambigous typing can be encoded as JSON easily using multiple JSON elements for each piece of data, eg:
 ```
 {"name":{ "type": "string", "data": "Alice"}}
 ```
-this is moderately inefficient, often more than doubling the message length. An alternative method is to use a pre-processing section in the message header containing the data types:
+this is moderately inefficient, typically more than doubling the message length. An alternative method is to use a pre-processing section in the message header containing the data types:
 
 ```
-{ 
-  "types": {
-    "name": "string"
-  },
-  "name": "Alice"
-}
+{"types": {"name": "string"}, "name": "Alice"}
 ```
-which is generally more efficient than the first form, especially for repeating elements.
+which is generally more efficient than the first form, when there are repeating elements.
 
 The JSON-ND form represents the same element as:
 
 ```
 { "name:string" : "Alice" }
 ```
-which is smaller, and may have lower memory overhead and parsing advantages over the previous two implementations.
+which is less verbose and may have lower memory overhead and parsing advantages over the previous two implementations (citation?).
 
 _The specification_ also allows for unambiguous elements to be un-qualified, so the form:
 
 ```
 { "name":"Alice", "isActive": false, "amount:currency": 32 } 
 ```
-is valid JSON-ND.
+is also valid JSON-ND.  Only the ambiguous "amount" element here needs qualification.
 
-In order to handle JSON Arrays of mixed type, _the specification_ also defines a convention for encoding mixed type JSon Array values by appending the data type to JSON value. The **_ndMixedType[]_** data-type is defined for this purpose and may also be specified in the Array element name. For example: 
+With JSON arrays, the data-type and array range of contained elements can be encoded in the form: 
+
+```
+{ "cards:string[0,4]" : [ "harts", "spades", "clubs", "diamonds" ] }
+```
+where the array is defined with a type, lower bound and length. There are parsing advantages in this form over standard JSON as the length of array is known in advance.
+
+In order to handle JSON Arrays of mixed type, _the specification_ also defines a convention for encoding mixed type JSon Array values by appending the data type to JSON value. The **_MixedType[]_** reserved data-type is defined for this purpose and may also be specified in the Array element name as in the  example: 
 
 ```
 {
-  "stuff:ndMixedType[]" : [
+  "stuff:MixedType[]" : [
     "Alice:string",
     true,
     "1:currency",
-    ""To be\u003A Or not to be:string"
+    "To be\u003A Or not to be:string"
   ]
 }
 ```
+_The specification_ states that the data-type qualifier is **_always_** optional, even for mixed type Json Arrays. 
 
-_The specification_ states that the data-type qualifier is **_always_** optional, even for mixed type Json Arrays. This means that data consumers need to certain of the message syntax (either JSON-ND or JSON) to ensure the data is correctly interpretted. 
+### Defining complex Data types
 
-The HTTP Header "Content-Type" is sufficient for this in the HTTP protocol. _The specification_ recommends the MIME-Type 
-`application/json+nd` for this purpose (although this mime-type is has not be officially ratified at this time).
+### Defining Remote Procedure Methods 
 
-Where the transport layer between two services is NOT HTTP, agreement can simply be _out of band agreement_, or ideally by using a protocol specific means to indicate the message syntax.
+
+## Conveying Language Style and error handling
+
+Data consumers need to be certain of the message syntax (either JSON-ND or JSON) to ensure the data is correctly interpretted. 
+
+_The specification_ defines 3 qualifiers for indicating the message type.
+ 1. "version" indicating the version of JSON-ND specifciation ("1.0")
+ 2. "style" conveys the context of data-types and method syntax (eg "xs", "c++", "pascal", "c#")
+ 3. "strict" indicator for error handling purposes.
+
+These indicators can be conveyed to the data consumer in any way. For example:
+ + out of bounds : A pre-agreement where JSON-ND version, style and strictness have been coded into the application by design
+ + by using a protocol specific metadata exchange (eg HTTP Content-type)
+ + by including a JSON object within the message.
+
+### JSON-ND JSON Object
+The JSON-ND object is defined as:
+```
+ "Json-ND" :{ 
+  "version": 1.0, 
+  "style": "<language>" 
+  [,"strict": true|false] 
+  [, data:{}]
+}
+```
+
+The only allowed value of "version" is currently "1.0". 
+
+The "style" property is a string value that indicates a programming language or specification where data-types and/or method syntax are defined. Any string may be used here to sufficiently disambiguate all data-types and method syntax used within the message.
+
+The "strict" property indicates that non-conformant messages should be rejected.  Where the strict propery is not used (or set to false) then no error message should be 
+
+
+### JSON-ND Mime-Type 
+_The specification_ recommends the MIME-Type `application/json-nd` with the parameters "version", "style" and "strict".
+
+This mime-type has been submitted to IANA for ratification.
+
+### Error handling (strict indicator)
+
+The introduction of typing in JSON-ND introduces the need for error handling.
+
+_The specification_ states that the default action to be taken in the case of unknown properties, non-conformant values, or misalignment of range bounds in Arrays is to **ignore data and adhere the specified type**.  For example: the following non-conformant message: 
+```
+{"name:string": true, "items:integer[0,2]" : "[3,2.5,7]" } 
+```
+should be interpretted as: 
+```
+{"name:string": null, "items:integer[0,2]" : "[3,<default||null>]" } 
+```
+When the JSON-ND "strict" qualifier is used (either unqualified or "true") then the entire message transaction should be rejected as an error.
+
 
 ## General Principles of the JSON-ND defintion 
 
-To translate JSON to JSON-ND, (optionally) **append the data-type to the end of the element name or value**.
+All JSON is valid JSON-ND, and all JSON-ND **MUST BE** valid JSON.
+
+To translate JSON to JSON-ND, for JSON Object, JSON Object Elements and named JSon Arrays, (optionally) **append the data-type to the end of the element name or value prefixed by a colon**.
+
+For named arrays, **the data-type and array range are appended to the name prefixed by a colon.**  The array range is optional.
 
 The term **"data-type"** is completely open and it should be interpreted to mean: 
 
 _**Text that describes how the associated value should be interpreted by the intended consumer**_. 
 
-In order to qualify the how to correctly interpret the text, an optional language style can be specified in the form of a JSON-ND object:
+The data-type is **always** optional and may be applied to none, some, or all of the elements or array element values.
 
-"Json-ND" :{"version": 1.0,"style": "_**language**_"[, data:{}]}
+For all Json Arrays, the data-type may be encoded in the JSON value by **converting the value to a string, and then appending the data type prefixed by a colon**.  It is recommended that this approach be used when the array contains data elements of mixed type, or when the array is un-named.  This approach is allowed in named arrays, but not recommended.
 
-JSON-ND can be passed without the style element where entities within a JSON transaction assume a pre-arranged language style.
+The reserved datatype **_MixedType[]_** may also be used to indicate an array of mixed type.
+
+In the case where the JSON Array element is a string containing one or more colons, the standard Json Unicode escape _\u003A_ should be applied, otherwise the data-type is **assumed to be the text following the final colon.** 
+
+In order to qualify how to correctly interpret the data-type, an optional language style can be specified in the form of a JSON-ND object:
+```
+"Json-ND" :{ 
+  "version": 1.0, 
+  "style": "<language>" 
+  [,"strict": true|false] 
+  [, data:{}]
+}
+```
+JSON-ND can be passed without the style element where entities within a JSON transaction assume a pre-arranged language style or the data-type has been included in a transaction via meta-data (eg HTTP Content-type).
 
 ```
 {
@@ -137,7 +211,7 @@ A fully qualified JSON-ND Object may also be used:
 }
 ```
 
-In the case where the consumer cannot be known (eg. public APIs), multiple comsumer language versions of the definition may be generated for each of the likely implementations of the definition (eg C++, C#, Pascal, Go, Haskell).
+In the case where the intended consumers of a message are not known (eg. public APIs), multiple comsumer language versions of the definition may be generated for each of the likely implementations of the definition (eg C++, C#, Pascal, Go, Haskell).
 
 Additionally a "default" language specification such as [XSD Built-in Types](https://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html#built-in-datatypes) 
 ```
@@ -145,27 +219,6 @@ Additionally a "default" language specification such as [XSD Built-in Types](htt
 ``` 
 is recommended for published services.
 
-### Element Example
-When using JSON-ND then following Standard JSON
-```
-{"id: 23, "name":"Alice", "results": [1,6,5]}
-```
-becomes:
-```
-{"id:integer": 23, "name:string":"Alice", "results:integer[]":[1,6,5]}
-```
-
-###  Mixed Array type Example
-Although mostly avoidable for standard array types, the follow format for mixed type JSON arrays can be used.
-
-The Standard JSON array
-```
-[23, 1, "$22.04"]
-```
-becomes
-```
-["23:decimal", "1:boolean", "22.04:currency"]
-```
 
 ## More Complex data types
 
@@ -591,5 +644,34 @@ Below is a very simple JSON-ND parser/validator. [raw source](https://raw.github
   </script>
 </body>    
 </html>
+```
+
+## Examples
+
+### Element Example
+When using JSON-ND then following Standard JSON
+```
+{"id: 23, "name":"Alice", "results": [1,6,5]}
+```
+becomes:
+```
+{"id": 23, "name":"Alice", "results:integer[]":[1,6,5]}
+OR
+{"id:integer": 23, "name":"Alice", "results:integer[0,3]":[1,6,5]}
+OR
+{"id:integer": 23, "name":"Alice", "results:integer[]":[1,6,5]}
+
+```
+
+###  Mixed Array type Example
+Although mostly avoidable for standard array types, the follow format for mixed type JSON arrays can be used.
+
+The Standard JSON array
+```
+[23, 1, "$22.04"]
+```
+becomes
+```
+["23:decimal", "1:boolean", "22.04:currency"]
 ```
 

@@ -118,7 +118,69 @@ In order to handle JSON Arrays of mixed type, JSON-ND Syntax uses the **_MixedTy
 ```
 Note that the colon in the text has been escaped to help with parsing.
 
-The data-type qualifier is **_always_** optional, even for mixed type Json Arrays. 
+The data-type qualifier is **_always_** optional, even for mixed type Json Arrays.  
+
+In order to prevent a situation where a parser cannot decide if a string Array element value has a data type or not, it is **NOT** permitted to specify the data-type in the JSON Array name AND the JSON value ie: 
+
+`"ids":["1:integer"]` is valid
+
+`"ids:integer[]":[1]` is valid
+
+`"ids:integer[]":["1:integer"]` is **invalid**.
+
+#### Encoding text with colons.
+To remove abiguity with strings and the presense or absence of colon in the text, either Escape the text colons and include a data type OR simply include the data-type and the final colon will delimit the data-type:
+
+When encoding the string "To be: Or not to be", ALL the following forms are valid:
+
+`"text":"To be: Or not to be"`
+
+`"text":"To be\u003A Or not to be"`
+
+`"text:string":"To be: Or not to be"`
+
+`["To be\u003A Or not to be"]`
+
+`["To be\u003A Or not to be:string"]`
+
+`["To be: Or not to be:string"]`
+
+`"text":["To be\u003A Or not to be"]`
+
+`"text:string[]":["To be: Or not to be"]`
+
+`"text:MixedType[]":["To be\u003A Or not to be:string"]`
+
+`"text:MixedType[]":["To be\u003A Or not to be"]`
+
+`"text:MixedType[]":["To be: Or not to be:string"]`
+
+But 
+
+`"ids:MixedType[]":["To be: Or not to be"]` is a _" Or not to be"_ data-type with a value of "To be";
+
+and 
+
+`"text":"To be\u003A Or not to be:string"` is a _string_ of value "To be: Or not to be:string"
+
+When encoding a URL, "http://myserver.com/api/user" the following forms are valid (assumes _url_ is a defined type):
+
+`"http://myserver.com/api/user:url"`
+
+`"http\u003A//myserver.com/api/user:string"`
+
+`"endpoint":"http://myserver.com/api/user"`
+
+`"endpoint:string":"http://myserver.com/api/user"`
+
+`"endpoints:string[]":["http://myserver.com/api/user"]`
+
+`"values:MixedType[]":["http://myserver.com/api/user:url"]`
+`"values:MixedType[]":["http\u003A//myserver.com/api/user:url"]`
+
+but 
+`"values":["http://myserver.com/api/user"]` is a data-type of "//myserver.com/api/user" with a value of "http"
+
 
 ### Defining Complex Data-types
 
@@ -363,23 +425,24 @@ The receiving server should reject the message as a `400 Bad Request` as the req
 
 ## Guidelines for using JSON-ND Syntax
 
-  1. All JSON is valid JSON-ND, and all JSON-ND **MUST BE** valid JSON.
+ 1. All JSON is valid JSON-ND, and all JSON-ND **MUST BE** valid JSON.
 
-  2. To translate JSON to JSON-ND, for JSON Object, JSON Object Elements and named JSon Arrays, (optionally) **append the data-type to the end of the element name or value prefixed by a colon**.
+ 2. To translate JSON to JSON-ND, for JSON Object, JSON Object Elements and named JSon Arrays, (optionally) **append the data-type to the end of the element name or value prefixed by a colon**.
 
-  3. For named arrays, **the data-type and array range are appended to the name prefixed by a colon.**  The array range is optional.
+ 3. For named arrays, **the data-type and array range are appended to the name prefixed by a colon.**  The array range is optional.
+ 3. For JSON name/value pairs, the Value MUST never include a data-type.
 
-  4. The term **"data-type"** is completely open and it should be interpreted to mean: 
+ 4. The term **"data-type"** is completely open and it should be interpreted to mean: 
   `Text that describes how the associated value should be interpreted by the intended consumer`. 
 
-  5. The data-type is **always** optional and may be applied to none, some, or all of the elements or array element values.
+ 5. The data-type is **always** optional and may be applied to none, some, or all of the elements or array element values.
 
  6. For _all_ Json Arrays, the data-type may be encoded in the JSON value by **converting the value to a string, and then appending the data type prefixed by a colon**. It is recommended that this approach be used _ONLY_ when:
 
      1. the array contains data elements of mixed type; or
      2. when the array is un-named.
 
- 7. Encoding the data-type in the value is allowed in named arrays, but discouraged.
+ 7. Encoding the data-type in the value is allowed in named arrays, but NOT allowed if the data-type is applied to array name (except for MixedType[]) ie `{"a:string[]":["one:string"]}` is **invalid**.
 
  8. In the case where the JSON Array element is a string containing one or more colons, the standard Json Unicode escape _\u003A_ should be applied, otherwise the data-type is **assumed to be the text following the final colon.** 
 

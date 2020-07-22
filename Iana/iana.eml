@@ -1,8 +1,8 @@
 
 -----Original Message-----
-From: IANA MIME Requests via RT <iana-mime@iana.org> 
+From: IANA MIME Requests via RT 
 Sent: Monday, 13 July 2020 10:42 PM
-To: glenk@galkam.com.au
+To: 
 Subject: [IANA #1174190] AutoReply: Request for media type application/json-nd
 
 To whom it may concern:
@@ -11,7 +11,7 @@ This is an automatically generated message to notify you that we have received y
 
 https://tools.iana.org/ticket-status/app
 
-If you have any problems accessing this page, please contact iana@iana.org.
+If you have any problems accessing this page, please contact 
 
 There is no need to reply to this message right now. IANA staff will review your message shortly.
 
@@ -26,12 +26,12 @@ You can also simply reply to this message, as this tag is already in the subject
 Thank you,
 
 The Internet Assigned Numbers Authority
-iana-mime@iana.org
+
 
 -------------------------------------------------------------------------
 
 Name: Glen Kleidon
-Email: glenk@galkam.com.au
+Email: 
 
 Media type name: application
 Media subtype name: json-nd
@@ -82,11 +82,11 @@ The current master branch of the repository is a general discussion on which the
 Person to contact for further information:
 
 1. Name: Glen Kleidon
-2. Email: glenk@galkam.com.au
+2. Email: 
 
 Intended usage: Common
 The mime type application/json-nd is intended to be a semantic imposition on the existing "ECMA-404 The JSON Data Interchange Syntax" and will use JSON syntax to encode additional data-type information for JSON values 
 
-Author/Change controller: Author: Glen Kleidon - glenk@galkam.com.au No standards organisation contact at this preliminary stage.
+Author/Change controller: Author: Glen Kleidon -  No standards organisation contact at this preliminary stage.
 
 

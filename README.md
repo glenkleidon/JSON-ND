@@ -443,34 +443,62 @@ Below is a very simple JSON-ND parser/validator. [raw source](https://raw.github
 ```
 <html>
 <head>
+ <title>JSON-ND Example Parse - Javascript</title>
 <script>
-  function JSON_ND_Parse(ndObj)
+  const JSONND = 
   {
-    var obj = JSON.parse(ndObj);     
-    for (var propertyName in obj) {
-        var p = propertyName.indexOf(":");
-        var v = obj[propertyName];
-        if (p > 0) {
-            //specific check for <Big>int (not number) ECMAScript 2020
-            if (propertyName.substr(p+1,3)==='int' && !parseInt(v)) 
-            {
-                v=NaN;
-            }; // add more validation eg number, boolean..
-            obj[propertyName.substr(0, p)] = v;
-            delete(obj[propertyName]);
-        }
-    };
-    return obj;
-  }
+      Parse : function(ndObj, strict) 
+	  {
+        var failed = false;
+		var failedMessage= "";
+		var obj = JSON.parse(ndObj);     
+		for (var propertyName in obj) {
+			var p = propertyName.indexOf(":");
+			var v = obj[propertyName];
+			if (p > 0) {
+				//specific check for <Big>int (not number) ECMAScript 202
+				if (propertyName.substr(p+1,3)==='int') 
+				{
+					var nv=parseInt(v); // it will truncate floats,
+					if (strict) 
+					{
+					  if (!nv || (parseFloat(v)-nv!=0) )
+					  {
+					    failedMessage += '"'+propertyName+'" value <'+v+'> not valid;';  
+					    failed=true;
+						v=null;
+					  }
+					} else {
+					  v=nv;
+					} 
+				}; // add more validation.
+				obj[propertyName.substr(0, p)] = v;
+				delete(obj[propertyName]);
+			}
+		};
+		if (failed) throw failedMessage;
+		return obj;
+	  }
+  };
 </script>
 </head>
 <body>
   <script>
-    var nd = '{"abc:string":"abc contains a string", "def:integer" : "not an integer"}'; 
-    document.write("<h3>Original 'nd' object:<pre>",nd,"<pre></h3>");  
+     var nd = '{"abc:string":"abc contains a string", "def:integer" : "not a number"}'; 
+     document.write("<h3>Original 'nd' object:<pre>",nd,"<pre></h3>");  
     document.write("See that 'nd.abc' has no value: abc=<b>" ,nd.abc,"</b>");
-    document.write("<h3>Then validate with JSON_ND_Parse:<pre>",JSON.stringify(JSON_ND_Parse(nd)),"</pre></h3>");
-    document.write("<p style='color: red'>Note that 'def' failed validation</p>");
+     document.write("<h3>Then validate with JSON_ND_Parse:<pre>",JSON.stringify(JSONND.Parse(nd)),"</pre></h3>");
+     document.write("<p style='color: red'>Note that 'def' failed validation</p>");
+	 
+	 document.write("<h3>With <b>strict</b> operator in place:");
+	 try
+	 {
+	   var strictNd = '{"abc:string":"abc contains a string", "def:integer" : "20.5"}'; 
+	   document.write("<pre>",JSON.stringify(JSONND.Parse(strictNd,true)),"</pre>");
+	 } catch (e)
+	 {
+	   document.write("<br>Caught exception: <pre>",e,"</pre>");
+	 }
   </script>
 </body>    
 </html>

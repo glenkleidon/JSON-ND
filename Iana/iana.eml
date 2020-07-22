@@ -1,6 +1,6 @@
 
 -----Original Message-----
-From: IANA MIME Requests via RT <iana-mime@iana.org> 
+From: IANA MIME Requests via RT 
 Sent: Monday, 13 July 2020 10:42 PM
 To: glenk@galkam.com.au
 Subject: [IANA #1174190] AutoReply: Request for media type application/json-nd
@@ -31,7 +31,7 @@ iana-mime@iana.org
 -------------------------------------------------------------------------
 
 Name: Glen Kleidon
-Email: glenk@galkam.com.au
+Email: 
 
 Media type name: application
 Media subtype name: json-nd
@@ -82,7 +82,7 @@ The current master branch of the repository is a general discussion on which the
 Person to contact for further information:
 
 1. Name: Glen Kleidon
-2. Email: glenk@galkam.com.au
+2. Email: 
 
 Intended usage: Common
 The mime type application/json-nd is intended to be a semantic imposition on the existing "ECMA-404 The JSON Data Interchange Syntax" and will use JSON syntax to encode additional data-type information for JSON values 

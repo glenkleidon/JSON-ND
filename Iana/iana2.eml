@@ -1,8 +1,8 @@
 
 -----Original Message-----
-From: Michelle Cotton via RT <iana-mime@iana.org> 
+From: Michelle Cotton via RT
 Sent: Tuesday, 14 July 2020 9:15 AM
-To: glenk@galkam.com.au
+To: 
 Subject: [IANA #1174190] Request for media type application/json-nd
 
 Dear Glen,
@@ -20,7 +20,7 @@ Protocol Parameters Engagement Sr. Manager IANA Services
 On Mon Jul 13 12:41:51 2020, glenk@galkam.com.au wrote:
 > 
 > Name: Glen Kleidon
-> Email: glenk@galkam.com.au
+> Email: 
 > 
 > Media type name: application
 > Media subtype name: json-nd
@@ -93,7 +93,7 @@ On Mon Jul 13 12:41:51 2020, glenk@galkam.com.au wrote:
 > Person to contact for further information:
 > 
 > 1. Name: Glen Kleidon
-> 2. Email: glenk@galkam.com.au
+> 2. Email: 
 > 
 > Intended usage: Common
 >  The mime type application/json-nd is intended to be a semantic 

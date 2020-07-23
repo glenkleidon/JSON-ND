@@ -193,7 +193,7 @@ For example it may be that a service needs the _id_ element to work correctly.  
 
 Many languages styles support the option of non-nullable data-type: this may or may not be explict.  So how this is implemented in JSON-ND will often dependend on the language style.
 
-For example the _int_ type in C# is explicitly not nullable, so in this case where the language style is specified, the _required_ qualtified would not be needed.  
+For example the _int_ type in C# is explicitly not nullable, so when C# language style is specified, the _required_ qualifier for _int_ types is redundant
 
 ### Defining Methods and Remote Methods (RPCs)
 Because the JSON String type has no character format restrcitions, JSON-ND allows for a method call to be conveyed exactly as it is defined in the language style.
@@ -279,9 +279,9 @@ This can easily be represented as an interface in JSON-ND as:
 }    
 ```
 
-In JSON-ND, _Class_ definitions are technical possibility: it would require the implementation of methods to be included in the definition and this is an extreme security risk. 
+In JSON-ND, _Class_ definitions are technical possibility: it would require the implementation of methods to be included in the definition. This is an extreme security risk. 
 
-**However, implementations SHOULD NOT be included in definitions** because it is extremely difficult to prevent arbitrary code from being executed in the consumer application. Scripting languages are particularly vulnerable (eg dynamic SQL and the _exec_ command in javascript). The inclusion of implementations for compiled languages might encourage developers to include dynamic execution methods in their applications making them vulnerable.
+**Implementations SHOULD NOT be included in definitions** because it is extremely difficult to prevent arbitrary (potentially malicious) code from being executed in the consumer application. Scripting languages are particularly vulnerable (eg dynamic SQL and the _exec_ command in javascript). The inclusion of implementations for compiled languages might encourage developers to include dynamic execution methods in their applications also making them vulnerable.
 
 ## Conveying Language Style and error handling
 
@@ -296,36 +296,61 @@ _The specification_ defines 3 qualifiers for indicating the message type.
 These indicators can be conveyed to the data consumer in any way. For example:
  + out of bounds : A pre-agreement where JSON-ND version, style and strictness have been coded into the application by design
  + by using a protocol specific metadata exchange (eg HTTP Content-type)
- + by including a JSON object within the message.
+ + by including a JSON-ND object within the message.
 
-_The specification_ recommends the MIME-Type `application/json-nd` with the parameters "version", "style" and "strict".
+The official MIME-Type `application/json-nd` with the parameters "version", "style" and "strict".  This mime-type registered with IANA.
 
-This mime-type has been submitted to IANA for ratification.
+### Scoping JSON-ND using the JSON Object
 
-(### Scoping_JSON-ND_using_the_JSON_Object)
-
-The Scope of a JSON-ND object may be restricted using then JSON-ND object.
+The Scope of a language style may be restricted using then JSON-ND object.
 
 The JSON-ND object is defined as:
 ```
  "Json-ND" :{ 
   "version": 1.0, 
-  "style": "<language>" 
+  "style": "<language>", 
   [,"strict": true|false] 
-  [, data:{}]
+  [, "data":{}]
+}
+```
+This allows a single message to include multiple versions of the defintion or data to be included in a single message.
+
+```
+{
+  "Json-ND" :{ 
+    "version": 1.0, 
+    "style": "pascal", 
+    "data":{
+      "Vendor:Interface" : [
+        "constructor Create(name: string)",
+        "procedure greet"
+      ] 
+    }
+  },
+  "Json-ND" :{ 
+    "version": 1.0, 
+    "style": "C#", 
+    "strict": true, 
+    data:{
+      "Vendor:Interface" : [
+        "Vendor(string name)",
+        "void greet()"
+      ] 
+    }
+  }
 }
 ```
 
-The only allowed value of "version" is currently "1.0". 
+The only allowed value of _**version**_ is currently "1.0". 
 
-The "style" property is a string value that indicates a programming language or specification where data-types and/or method syntax are defined. Any string may be used here to sufficiently disambiguate all data-types and method syntax used within the message.
+The _**style**_ property is a string value that indicates a programming language or specification where data-types and/or method syntax are defined. Any string may be used here to sufficiently disambiguate all data-types and method syntax used within the message.
 
-The "strict" property indicates that non-conformant messages should be rejected.  Where the strict propery is not used (or set to false) then no error message should be 
+The _**strict**_ property indicates that non-conformant messages should be rejected.  Where the strict propery is not used (or set to false) then no error message should be generated by the parsing process, however it may be that a method may still fail during processing.
 
-### Error handling (strict indicator)
-The introduction of typing in JSON-ND introduces the need for error handling because there is a potential for data to be incompatible with the defition.
+### Error handling (_strict_ indicator)
+The introduction of typing in JSON-ND introduces the need for error handling because there is a potential for data to be incompatible with the definition.
 
-JSON-ND syntax requires that default action when encountering unknown properties, non-conformant values, or misalignment of range bounds in Arrays is to **ignore data and adhere the specified type**.  For example: the following non-conformant message: 
+The default action when parsing JSON-ND syntax for unknown properties, non-conformant values, or misalignment of range bounds in Arrays is to **ignore data and adhere the specified type**.  For example: the following non-conformant message: 
 ```
 {"name:string": true, "items:integer[0,2]" : "[3,2.5,7]" } 
 ```
@@ -342,8 +367,8 @@ For Example using a Scoped JSON-ND Object:
  "Json-ND" :{ 
   "version": 1.0, 
   "style": "pascal", 
-  ,"strict": true 
-   data:{
+  "strict": true, 
+  "data":{
       "id:required integer": null,
       "age:integer": "old",
    }
@@ -359,45 +384,36 @@ Content-Type: application/json-nd; version=1.0; style="pascal"; strict
   "age:integer": "old"
 }
 ```
-The receiving server should reject the message as a `400 Bad Request` as the required Identifier "id" is not supplied and the integer element "age" is not an integer.
+The receiving server should reject the message as a `400 Bad Request` as the required identifier "id" is not supplied and the integer element "age" is not an integer.
 
-## Guidelines for using JSON-ND Syntax
+
+# Guidelines for using JSON-ND Syntax
 
   1. All JSON is valid JSON-ND, and all JSON-ND **MUST BE** valid JSON.
 
   2. To translate JSON to JSON-ND, for JSON Object, JSON Object Elements and named JSon Arrays, (optionally) **append the data-type to the end of the element name or value prefixed by a colon**.
 
-  3. For named arrays, **the data-type and array range are appended to the name prefixed by a colon.**  The array range is optional.
+  3. For named arrays, **the data-type and array range are appended to the name prefixed by a colon.**  The array _lower bound_ and _range_ are optional.
 
   4. The term **"data-type"** is completely open and it should be interpreted to mean: 
   `Text that describes how the associated value should be interpreted by the intended consumer`. 
 
   5. The data-type is **always** optional and may be applied to none, some, or all of the elements or array element values.
 
- 6. For _all_ Json Arrays, the data-type may be encoded in the JSON value by **converting the value to a string, and then appending the data type prefixed by a colon**. It is recommended that this approach be used _ONLY_ when:
+  6. For _all_ Json Arrays, the data-type may be encoded in the JSON value by **converting the value to a string, and then appending the data type prefixed by a colon**. It is recommended that this approach be used _ONLY_ when:
 
      1. the array contains data elements of mixed type; or
      2. when the array is un-named.
 
- 7. Encoding the data-type in the value is allowed in named arrays, but discouraged.
+  7. Encoding the data-type in the value is allowed in named arrays, but NOT allowed when the data-type has not been supplied in the element name.
 
- 8. In the case where the JSON Array element is a string containing one or more colons, the standard Json Unicode escape _\u003A_ should be applied, otherwise the data-type is **assumed to be the text following the final colon.** 
+  8. In the case where the JSON Array element is a string containing one or more colons, the standard JSON Unicode escape _\u003A_ should be applied, otherwise the data-type is **assumed to be the text following the final colon.** 
 
- 9. For specific languages, the COLON is forms part of the method definition. An exception to the rule above may be required when defining methods.
+ 9. For specific languages, the COLON (unicode 003A) forms part of the method definition. An exception to the rule above may be required when defining methods.
 
- 10. In order to qualify how to correctly interpret the data-type, an optional language style can be specified in the form of a [JSON-ND object](#scoping_json-nd_using_the_json_objet):
+ 10. In order to qualify how to correctly interpret the data-type, an optional language style can be specified in the form of a [JSON-ND object](#scoping-json-nd-using-the-json-object) within the message OR by using the JSON-ND mime-type _application/json-nd_ in the protocol metadata.
 
-11. JSON-ND can be passed without the style element where entities within a JSON transaction assume a pre-arranged language style or the data-type has been included in a transaction via meta-data (eg HTTP Content-type).
-
-```
-   {
-      "id:UInt32": 345,
-      "name:string": "Bob",
-      "cost:currency": 1400
-   }
-```
-
-12. In cases where there is no pre-arranged style, 
+ 11. In cases where there is no pre-arranged style, 
     1. the style qualifier may be added as an additional element.
     2. A fully qualified JSON-ND Object may also be used:
 eg
@@ -424,21 +440,23 @@ eg
        }
 ```
 
- 13. In the case where the intended consumers of a message are not known (eg. public APIs), multiple comsumer language versions of the definition may be generated for each of the likely implementations of the definition (eg C++, C#, Pascal, Go, Haskell). Additionally a "default" language such as [XSD Built-in Types](https://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html#built-in-datatypes) is recommended for public apis
+ 12. In the case where the intended consumers of a message are not known (eg. public APIs), multiple comsumer language versions of the definition may be generated for each of the likely implementations of the definition (eg C++, C#, Pascal, Go, Haskell). Additionally a "default" language such as [XSD Built-in Types](https://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html#built-in-datatypes) is recommended for public apis
 ```
     "Json-ND" :{
       "version": 1.0,
       "style": "http://www.w3.org/2001/XMLSchema-datatypes"
     }
 ``` 
- 14. Remote method calls can be defined using in the syntax defined by the Language Style.  There are two forms
+ 13. Remote method calls can be defined using the syntax of the Language Style.  There are two forms
      1. [In-line](#in-line-form); or
      2. using [Method-Delegate](#method-delegate-form) approach.
 
- 15. A complex data-type can be used to define an Class Interface in JSON-ND, however **method implementations** **_should not be include_** in the defintion.
+ 14. A complex data-type can be used to define an Class Interface in JSON-ND. 
+
+ 15. Technically a Class defintion could be encoded in JSON-ND, however the inclusion of **method implementations** in JSON-ND messages **_is strongly discouraged_**.
 
 
-#### Example Javascript JSON-ND Validation
+# Example Javascript JSON-ND Validation
 Below is a very simple JSON-ND parser/validator. [raw source](https://raw.githubusercontent.com/glenkleidon/JSON-ND/master/testJson-nd.html)
 ```
 <html>
@@ -505,4 +523,3 @@ Below is a very simple JSON-ND parser/validator. [raw source](https://raw.github
 ```
 
 [demo](https://www.galkam.com.au/public/testjson-nd.html)
-

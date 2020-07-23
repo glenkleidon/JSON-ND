@@ -73,7 +73,7 @@ this is moderately inefficient, typically more than doubling the message length.
 An alternative method is to use a pre-processing section in the message header containing the data types:
 
 ```
-{"types": {"type": "string"}, "name": "Alice"}
+{"types": {"type": "string", "name": "Alice"} }
 ```
 which is generally more efficient than the first form, when there are repeating elements.  **JSON-ND does not use this approach either**.
 

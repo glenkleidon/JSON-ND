@@ -3,7 +3,7 @@
 JSON-ND or _**JSON with Named Datatypes**_ is a very simple way to include data-types in [JSON](https://json.org) data.
 
 All that is needed to encode JSON data into JSON-ND is to 
-**appending the data-type to the element name**.
+**append the data-type to the element name**.
 So the example below:
 
 ```
@@ -24,9 +24,9 @@ becomes:
 ```
 Both forms of this JSON object are valid JSON in most, if not all, modern browser Javascript implementations.
 
-_The JSON standard_ [ECMA-ST-ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf) clearly states that the name element of any JSON element is a simply a _string_, with no restrictions and that it may contain any unicode character. The original JSON post made the term **_name_** slightly ambigous by using it in the text of the post, but not defining it in the accompanying McKeeman Form or Workflow diagrams. 
+The original JSON post made the term **_name_** slightly ambigous by using it in the text of the post, but not defining it in the accompanying McKeeman Form or Workflow diagrams where it is simply referred to as "string". _The JSON standard_ [ECMA-ST-ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf) clears this up by stating that the name of any JSON member is a _string_, with no restrictions: it may contain any unicode character. 
 
-This fact allows a very simple and efficient means to fully qualify the data-type in JSON syntax.  It also provides, as a side-effect, a way to define complex types and remote methods (aka remote procedure calls).
+This fact allows for a very simple and efficient means to fully qualify the data-type in JSON syntax.  It also provides, as a side-effect, a way to define complex types and remote methods (aka remote procedure calls).
 
 The term **"data-type"** is completely open and it should be interpreted to mean: 
 
@@ -36,7 +36,7 @@ JSON-ND defines only three data-types **_Enum_**, **_MixedType[]_** and **_Inter
 
 For example, in C style langages, an integer is typically written as _int_, but in Pascal, an integer is written as _Integer_.
 
-Any language style may be used in JSON-ND. The style being used can be included within the message or in a protocol header.
+Any language style may be used in JSON-ND. The style being used can be conveyed within the message or in a protocol header.
 
 
 ## What is the JSON-ND Specification?
@@ -46,7 +46,7 @@ Its primary purpose is to **reduce or eleminate ambiguity** of JSON values by **
 
 This is approach is most useful when using JSON syntax to communicate between strongly typed and untyped language implementations of a service; or with strongly typed languages using a dynamic data structure where the exact data type may not be fully known at compile time.  This is also helpful for data visualisation tools when displaying novel data.
 
-The data-type is **always** optional and may be applied to none, some, or all of the elements or array element values and typically follows a perferred language style (eg C++, C#, GO, Pascal, Typescript).  The language style can be conveyed in a number of ways including pre-agreement, in the protocol header or in the data itself.
+The data-type is **always** optional and may be applied to none, some, or all of the _member names_ or _array elements_ and follows a perferred language style (eg C++, C#, GO, Pascal, Typescript).  The language style can be conveyed in a number of ways including pre-agreement, in the protocol header or in the data itself.
 
 ## Using JSON-ND syntax
 
@@ -91,18 +91,21 @@ JSON-ND syntax **does NOT require elements to be qualified**, so the form:
 ```
 { "name":"Alice", "isActive": false, "amount:currency": 32 } 
 ```
-**is also valid JSON-ND**.  Only the ambiguous _amount_ element here needs qualification, the others can remain as unmodified JSON.
+**is also valid JSON-ND**.  Only the ambiguous _amount_ member here needs qualification.   The others are simply unmodified JSON.
 
 ### Qualifying Array Elements
-With JSON arrays, the data-type and array range of contained elements may be encoded in the form: 
-
+With JSON arrays, the data-type and array range of contained elements may be encoded in the form:
+```
+{ "<label>:<data-type>[<lower bound>,<length>]" : [ <elements>  ] }
+``` 
+For Example:
 ```
 { "transport:string[0,4]" : [ "car", "bus", "plane", "train" ] }
 ```
 where the array is defined with:
- + a data-type, 
- + an optional lower bound,
- + and an optional length.
+ + a data-type of _string_, 
+ + an optional lower bound of _0_,
+ + and an optional length of _4_.
  
  There are parsing advantages in this form over standard JSON as the length of array is known in advance and can be pre-allocated.
 
@@ -122,7 +125,7 @@ Note that the colon in the text has been escaped to help with parsing.
 
 The data-type qualifier is **_always_** optional, even for mixed type Json Arrays.  
 
-In order to prevent a situation where a parser cannot decide if a string Array element value has a data type or not, it is **NOT** permitted to specify the data-type in the JSON Array name AND the JSON value ie: 
+In order to prevent a situation where a parser cannot decide if an Array element value has a data type or not, it is **NOT** permitted to specify the data-type in the JSON Array name AND the JSON value ie: 
 
 `"ids":["1:integer"]` is valid
 
@@ -180,15 +183,24 @@ Rules for URLs are identical to strings, but represent a specific use case.  Whe
 `"values:MixedType[]":["http://myserver.com/api/user:url"]`
 `"values:MixedType[]":["http\u003A//myserver.com/api/user:url"]`
 
-But `"values":["http://myserver.com/api/user"]` is a data-type of "//myserver.com/api/user" with a value of "http".
+But: 
+
+`"http://myserver.com/api/user"`; and
+
+`"values":["http://myserver.com/api/user"]`; and
+
+`"values:MixedType[]":["http://myserver.com/api/user"]`
+
+
+represents a data-type of "//myserver.com/api/user" with a value of "http".
 
 ### Defining Complex Data-types
 
-With the simple convention of including the data-type in the name of an element, there is sufficient syntax to define **custom data types** and define **remote methods**.
+With the simple convention of including the data-type in the name of a JSON member or an element, there is sufficient syntax to define **custom data types** and define **remote methods**.
 
 This approach is far simpler, (but also less complete) than the [JSON Schema](https://json-schema.org/) approach because
 
-+ the data and definition are not separated
++ the data and definition are not (necessarily) separated
 + and no prior knowledge is required by a service to use the definition.
 
 #### Enumerated types 
@@ -208,9 +220,9 @@ There does not seem to be a less ambigous way to convey an enumerated type in va
 In the case where a specific language has alternative convention for defining an enumerated type that can be conveyed using legal JSON syntax, then this is not precluded.
 
 #### Complex Data-types
-JSON-ND syntax defines data-types using the reserved data-type **_Interface_**.
+JSON-ND syntax defines data-types using the reserved keyword **_Interface_**.
 
-Complex types can be created utilizing primitive types and defined types (with variation depending on language style)
+Complex types can be created using primitive types and defined types. The actual data-type name and syntax will vary depending on language style.
 ```
 {
   "User:Interface": [
@@ -231,7 +243,7 @@ Complex types can be created utilizing primitive types and defined types (with v
   ]
 }
 ```
-where primitive types, the previously defined _User_ object and an other (presumuably defined) data-type _Customer_ are used in the _Order_ data-type.
+where primitive types (_id_, _orderDate_), the previously defined _User_ object and an other (presumuably defined) data-type _Customer_ are used in the _Order_ data-type.
 
 There is no restriction of the use of complex types so nested objects are permitted.
 
@@ -256,43 +268,43 @@ Many languages styles support the option of non-nullable data-type: this may or 
 
 For example the _int_ type in C# is explicitly not nullable, so in this case where the language style is specified, the _required_ keyword is redundant and can be omitted.  
 
-### Defining Methods and Remote Methods (RPCs)
-Because the JSON String type has no character format restrcitions, JSON-ND allows for a method call to be conveyed exactly as it is defined in the language style.
+### Defining Methods and Remote Methods (Remote Procedure Calls)
+Because the JSON String type has no character format restrcitions, JSON-ND allows for a method call to be written exactly as it is in the specific language.
 
-So, when defining a **method** JSON-ND allows two forms: an **_inline-method_** form and a **_method-delegate_** form.
+When defining a **method** JSON-ND allows two forms: an **_inline-method_** form and a **_method-delegate_** form.
 
 #### In-line form
-Using Pascal Style, a simple method for adding two integers could be defined as part of a complex data-type as an in-line form:
+Using Pascal Style, a simple method for adding two integers could be defined as part of a complex data-type in an in-line form:
 ```
  {
-   "mathObject:Interface [
+   "mathServic:Interface [
      ...,
      "function AddTwoIntegers(int1:integer; int2:integer):integer" 
    ]
  }
 
 ```
-Pascal, Kotlin and Typescript styles have the added advantage that the syntax complies with the convention that the data-type (return type in this case) is appended after a last colon in the JSON String.
+Pascal, Kotlin and Typescript styles (to name a few) have the added advantage that the syntax complies with the convention that the data-type (return type in this case) is appended after a last colon in the JSON String.
 
 For C style languages, the method would be defined as:
 ```
  {
-   "mathObject:Interface [
+   "mathService:Interface [
      ...,
      "int AddTwoIntegers(int int1, int int2)" 
    ]
  }
 ```
-Unfortunately, this form does not append the data type so, implementers of JSON-ND is these languages will have manage a minor exception to the rule.
+Unfortunately, this form does not append the data type so, implementers of JSON-ND in these languages will have to accept a minor exception to the rule.
 
 #### Method-Delegate form
-The same _AddTwoIntegers_ method MAY be defined using the method-delgate form and is intended to convey additional information about the method including the endpoint URI where the method is implemented.
+The same _AddTwoIntegers_ method MAY be defined using the method-delgate form. This form is intended to convey additional information about the method, for example, the endpoint URI where the method can be evoked.
 
 In Pascal Style:
 ```
  {
    "AddTwoIntegers:Interface": "function(int1:integer; int2:integer):integer",
-   "mathObject:Interface": [
+   "mathService:Interface": [
      ...,
      "addTwoIntegers:AddTwoIntegers"
    ]
@@ -304,12 +316,46 @@ In C Style:
  {
    "AddTwoIntegers:Interface": "int AddTwoIntegers(int int1, int int2)",
 
-   "mathObject:Interface": [
+   "mathService:Interface": [
      ...,
-     "addTwoIntegers:AddTwoIntegers" : "./methods/AddTwoIntegers" 
+     "addTwoIntegers:AddTwoIntegers" 
    ]
  }
 ```
+In the instance, the defined service object might look like this:
+```
+{
+  mathService : {
+    "addTwoIntegers": "./api/addtwointegers"
+  }
+}
+```
+Taking this one step further, because the delegate is defined, you could define alternate implementations of the same type on different services:
+```
+ {
+   "AddTwoIntegers:Interface": "int AddTwoIntegers(int int1, int int2)",
+
+   "mathService:Interface": [
+     ...,
+     "addTwoIntegers:AddTwoIntegers", 
+     "addTwoIntegers_REST:AddTwoIntegers",
+     "addTwoIntegers_AU:AddTwoIntegers", 
+     "addTwoIntegers_NZ:AddTwoIntegers",
+   ]
+ }
+```
+with the instance:
+```
+{
+  mathService : {
+    "addTwoIntegers": "./api/addtwointegers",
+    "addTwoIntegers_REST": "./api/addtwointegers/:int1/:int2",
+     "addTwoIntegers_AU: "https://apis.company.com.au/api/addtwointegers",
+     "addTwoIntegers_NZ": "https://apis.company.co.nz/api/addtwointegers" 
+  }
+}
+```
+
 
 ### Defining Class Interfaces
 

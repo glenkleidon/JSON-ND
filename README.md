@@ -3,7 +3,7 @@
 JSON-ND or _**JSON with Named Datatypes**_ is a very simple way to include data-types in [JSON](https://json.org) data.
 
 All that is needed to encode JSON data into JSON-ND is to 
-**appending the data-type to the element name**.
+**append the data-type to the element name**.
 So the example below:
 
 ```

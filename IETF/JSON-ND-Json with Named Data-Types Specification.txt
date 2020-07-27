@@ -1,0 +1,407 @@
+Independent Submission                                      Glen Kleidon
+Request for Comments: <RFC number>                           Independent
+Category: Experimental
+
+            JSON-ND Syntax Rules for Encoding Data-Types 
+                Within JSON Data Interchange Syntax
+
+Abstract   
+
+   This document describes a set of simple rules for unambigously and
+   concisely encoding data-types into JSON Data Interchange Syntax 
+   messages. Additionally, it provides a framework for defining complex
+   data-types, methods and interfaces for static and remote services 
+   using JSON Syntax. These rules and framework, called the JSON-ND (JSON
+   with named data-types) Syntax, always produce valid JSON Syntax. This
+   means that JSON-ND syntax can used to address type-safety and precision
+   issues caused by JSON Syntax limitations.  It can be used to 
+   dynamically generate type-safe objects at runtime for scripting 
+   languages and eliminate interpretation error for dynamically typed 
+   langagues.
+
+Status of This Memo
+
+   This document is not an Internet Standards Track specification; it is
+   published for examination, experimental implementation, and
+   evaluation.
+
+   This document defines an Experimental Protocol for the Internet
+   community.  This document is a product of the Internet Engineering
+   Task Force (IETF).  It has been approved for publication by the
+   Internet Engineering Steering Group (IESG).  Not all documents
+   approved by the IESG are a candidate for any level of Internet
+   Standard; see Section 2 of RFC 5741.
+
+   Information about the current status of this document, any
+   errata, and how to provide feedback on it may be obtained at
+   http://www.rfc-editor.org/info/rfc<rfc-no>.
+
+Copyright Notice
+
+   Copyright (c) 2020 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents
+   (http://trustee.ietf.org/license-info) in effect on the date of
+   publication of this document.  Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.
+
+Table of Contents
+
+1. Introduction
+
+JSON-ND (JSON with Named Datatypes) is a very simple way to include 
+data-types in [JSON](https://json.org) data. The JSON Syntax is 
+described in The JSON Data Interchange Syntax standard 
+[ECMA-ST-ECMA-404] (http://www.ecma-international.org/publications/
+files/ECMA-ST/ECMA-404.pdf) (the JSON standard).
+
+JSON-ND syntax uses the "name" element of JSON value pairs to convey the
+data-type, or in the case of un-named or mixted type arrays, the value
+is converted to a JSON string and the data-type is appended.
+
+The JSON standard, ECMA-ST-ECMA-404, paragraph 6, in conjunction with 
+[RFC8259](https://tools.ietf.org/html/rfc8259) state that:
+
+   A name is a string. The JSON syntax does not impose any restrictions 
+   on the strings used as names, does not require that name strings be 
+   unique, and does not assign any significance to the ordering of 
+   name/value pairs...
+
+This removes the previously ambigous term "name" which, as a result of 
+an omission of a definition of the term in 2 of 3 parts of [JSON Syntax]
+(https://json.org) (_the JSON Post_), left the intent un-clear.  The 
+term "name" was described only in the text of the JSON Post, but not
+included in the accompanying McKeeman Form or Workflow diagrams. 
+
+This means, by agreed convention, it is possible to convey an 
+unambiguous data-type in JSON syntax by appending the data-type to the
+element name.
+
+1.1.  Conventions Used in This Document
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+   "OPTIONAL" in this document are to be interpreted as described in BCP
+   14 [RFC2119] [RFC8174] when, and only when, they appear in all
+   capitals, as shown here.
+
+   The grammatical rules in this document are to be interpreted as
+   described in [RFC5234].
+
+2. JSON-ND Grammar
+
+  JSON-ND grammar is identical to that of JSON Data Interchange Syntax 
+  as defined in [RFC8259] and the JSON standard [ECMA-404].  
+
+  JSON-ND messages MAY contain embedded data-type information and MUST
+  always be valid JSON.
+  
+  For the purposes of parsing JSON-ND, all JSON messages are also valid 
+  JSON-ND messages as the use of embedded data-types is always optional.
+
+3. JS-ND Terms 
+  
+3.1 TJSON-ND Data-Types
+
+   The term "data-type" SHOULD be interpreted to mean:
+
+     Any text that describes how the associated value is to be 
+     interpreted by the intended consumer.
+   
+   This definition provides the use of any language syntax to describe 
+   the data associated with the specified data-type.
+
+   JSON-ND reserves the use of three (3) keywords as data-types: 
+   "Interface", "MixedType[]" and "Enum".
+
+   JSON-ND also reserves the of two (2) keywords as data-type qualifiers
+   "required" and "property" which are used in conjunction with 
+   a data-type to provide extra handling information.
+
+3.2  The Term "name"
+   
+   JSON Interface Interchange syntax describes a "JSON object" as 
+123456789012345678901234567890123456789012345678901234567890123456789012   
+
+    "... a pair of curly bracket tokens surrounding zero or more 
+    name/value pairs."
+
+    However, it is defines name specifically as a "string".
+   
+   JSON-ND defines a "name" more precisely for reference purposes. A 
+   JSON-ND "name" consists of a JSON string containing a "Label", followed
+   optionally by the colon unicode character (%x003A), an optional
+   data-type qualifier, a data-type,   has the following form:
+
+     "label[<colon>[<data-type qualifier><space>]<data-type>]"
+
+   Where "label" is   
+
+
+3.1  Reserved Data-Types
+
+3.1.1  The "Interface" keyword
+
+    "Interface" is a keyword used to indicate that the named element 
+    is a data-type definition. 
+
+3.1.2  The "MixedType[]" data-type
+
+    "MixedType[]" is a data-type indicating that the associated value is 
+    a JSON Array containing elements that MAY be of different data-type.
+
+3.1.3  The "Enum" data-type
+
+    "Enum" is a data-type that indicates the associated value is a JSON 
+    array containing a list of elements intended to define an Enumerated
+    type. <ref def>
+
+3.2  Reserved Data-type qualifiers 
+
+   Data-type qualifiers are keywords that MAY be pre-pended to a 
+   data-type with a space delimiter to provide additional handling 
+   information for the data-type.
+
+   The format for a data-type qualifier is:
+   "name:<qualifier> <data-type>" 
+
+3.2.1  The "required" data-type qualifier
+
+   The keyword "required" when pre-pended to a data-type indicates that 
+   the associated value MUST be present AND MUST BE an allowed value of
+   that data-type.  Non-compliance is likely to result in the value 
+   being rejected by the consumer of the message.
+ 
+3.2.2  The "property" data-type qualifier
+
+  The keyword "property" when pre-pended to a data-type indicates that 
+  that the consumer should consider the named element to be a property 
+  <ref def> rather than a field <ref def>. 
+
+4. Qualifying The Data-type of a JSON object Member (name/value pair)
+
+  To qualify the data-type in a JSON object member (aka Name/Value 
+  pair), append a colon character (%x3A) and the data-type after 
+  element Name within the JSON string. 
+  
+  The format is:
+    "name:[<data-type qualifier><space>]<data-type>": "<value>"
+
+  Where:
+    "name" is the 'label' used by the intended language to refer
+      to the value.
+    "data-type qualfier" is option data-type qualifier (either 
+      literal text "required" or "property")
+    "space" is the unicode character %x0020 (must be present if 
+      data-type qualifier is present)
+    "data-type" is the intended data-type for the element
+    "value" is the JSON Value for the JSON Object member. 
+
+  For example, a JSON object containing a single string:
+    {"name:string" : "Alice"}
+
+  A JSON object containing a single that is mandatory for 
+  processing:
+    {"name:required string" : "Alice"}
+
+123456789012345678901234567890123456789012345678901234567890123456789012
+5.  Qualifying Array Elements
+  When encoded JSON arrays, the data-type and array range of contained 
+  elements use the form:
+   
+   "<label>:<data-type>[<lower bound>,<length>]" : [ <elements>  ] }
+
+  where
+
+  For Example:
+   { "transport:string[0,4]" : [ "car", "bus", "plane", "train" ] }
+
+  Where the array is defined with:
+    a data-type of string, 
+    an optional lower bound of 0,
+    and an optional length of 4.
+ 
+ There are parsing advantages in this form over standard JSON as the length of array is known in advance and can be pre-allocated.
+
+In order to handle JSON Arrays of mixed type, JSON-ND Syntax uses the **_MixedType[]_** reserved data-type, and encodes mixed type JSon Array values by appending the data type to **_JSON value_** as in the example: 
+
+```
+{
+  "stuff:MixedType[]" : [
+    "Alice:string",
+    true,
+    "1:currency",
+    "To be\u003A Or not to be:string"
+  ]
+}
+```
+Note that the colon in the text has been escaped to help with parsing.
+
+The data-type qualifier is **_always_** optional, even for mixed type Json Arrays.  
+
+In order to prevent a situation where a parser cannot decide if an Array element value has a data type or not, it is **NOT** permitted to specify the data-type in the JSON Array name AND the JSON value ie: 
+
+`"ids":["1:integer"]` is valid
+
+`"ids:integer[]":[1]` is valid
+
+`"ids:integer[]":["1:integer"]` is **invalid**.
+
+#### Encoding text strings with colons.
+To remove abiguity with strings and the presense or absence of colon in the text, either escape the text colons and include a data type OR simply include the data-type and the final colon will delimit the data-type:
+
+When encoding the string "To be: Or not to be", ALL the following forms are valid:
+
+`"To be: Or not to be"`
+
+`"To be\u003A Or not to be"`
+
+`"text":"To be: Or not to be"`
+
+`"text":"To be\u003A Or not to be"`
+
+`"text:string":"To be: Or not to be"`
+
+`["To be\u003A Or not to be"]`
+
+`["To be\u003A Or not to be:string"]`
+
+`["To be: Or not to be:string"]`
+
+`"text":["To be\u003A Or not to be"]`
+
+`"text:string[]":["To be: Or not to be"]`
+
+`"text:MixedType[]":["To be\u003A Or not to be"]`
+
+`"text:MixedType[]":["To be\u003A Or not to be:string"]`
+
+`"text:MixedType[]":["To be: Or not to be:string"]`
+
+But `"ids:MixedType[]":["To be: Or not to be"]` is a _" Or not to be"_ data-type with a value of "To be" (which incidentally could be valid variable name in Algol, Fortran and perhaps TCL).
+ 
+Also, `"text":"To be\u003A Or not to be:string"` and `"values:string[]": ["To be\u003A Or not to be:string"]`  is a _string_ of value "To be: Or not to be:string"
+
+Rules for URLs are identical to strings, but represent a specific use case.  When encoding the URL, "http://myserver.com/api/user" the following forms are valid (assumes _url_ is a defined type):
+
+`"http://myserver.com/api/user:url"`
+
+`"http\u003A//myserver.com/api/user:string"`
+
+`"endpoint":"http://myserver.com/api/user"`
+
+`"endpoint:url":"http://myserver.com/api/user"`
+
+`"endpoints:string[]":["http://myserver.com/api/user"]`
+
+`"values:MixedType[]":["http://myserver.com/api/user:url"]`
+`"values:MixedType[]":["http\u003A//myserver.com/api/user:url"]`
+
+But: 
+
+`"http://myserver.com/api/user"`; and
+
+`"values":["http://myserver.com/api/user"]`; and
+
+`"values:MixedType[]":["http://myserver.com/api/user"]`
+
+
+represents a data-type of "//myserver.com/api/user" with a value of "http".
+
+
+123456789012345678901234567890123456789012345678901234567890123456789012 
+
+MAIN BODY OF THE TEXT
+  6.  ...
+
+7.  IANA Considerations
+
+  The media type for JSON-ND text is application/json-nd.
+
+   Type name:  application
+
+   Subtype name:  json-nd
+
+   Required parameters:
+
+   Optional parameters: version; style; strict;
+
+   Encoding considerations:  binary
+
+   Security considerations:  These are Idential to JSON, See RFC 8259,
+    Section 12.
+
+   Interoperability considerations: These are identical to JSON as 
+    Described in RFC 8259.
+
+   Published specification:  
+
+   Applications that use this media type:
+      A limited number of demonstration applications have used JSON-ND 
+      Syntax, however, as JSON-ND is a superset of JSON, it has the 
+      potential to exchange data between any applications currently 
+      capable of using JSON Syntax and any future applications that
+      could potentially support JSON Syntax. 
+
+   Additional information:
+      Magic number(s): n/a
+      File extension(s): .jsonnd
+      Macintosh file type code(s): TEXT
+
+   Person & email address to contact for further information:
+      glen Kleidon
+      <gk@galkam.com.au>
+
+   Intended usage:  COMMON
+
+   Restrictions on usage:  none
+
+   Author:
+      Glen Kleidon
+      <gk@galkam.com.au>
+
+   Change controller:
+      Glen Kleidon
+      <gk@galkam.com.au>
+
+  
+11.  Security Considerations
+  The security considerations for JSON-ND are essentially identical to 
+  those of JSON Syntax: See RFC 8259, Section 12.
+
+  It is noteworthy that because JSON-ND allows for remote methods to be
+  defined and also for Interfaces to carry method definitions, that the
+  risk of JSON-ND consumers executing arbitrary code conveyed in a 
+  JSON-ND message may be high than that of JSON syntax where the 
+  language supports that feature (eg "eval()" in Javascript or 
+  variations of the "exec" method in SQL implementations).
+
+10.  References
+123456789012345678901234567890123456789012345678901234567890123456789012
+  10.1.  Normative References
+
+  10.2.  Informative References
+  Appendix A.
+  Appendix B.
+
+Acknowledgements
+  
+  I must acknowledge Anders Heljlsberg and the Typescript team at 
+  Microsoft who's work on Typescript inspired the principles of JSON-ND
+  particularly with respect to the default formatting and the idea of
+  Super-Set of a work could extend its functionality without 
+  fundamentally changing it. 
+
+Contributors
+
+  This document was written by Glen Kleidon.
+
+Author's Address
+   
+   Glen Kleidon (Author)
+   Galkam Pty Ltd
+
+   Email: gk@galkam.com.au

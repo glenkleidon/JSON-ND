@@ -102,9 +102,9 @@ element name.
   For the purposes of parsing JSON-ND, all JSON messages are also valid 
   JSON-ND messages as the use of embedded data-types is always optional.
 
-3. JS-ND Terms 
+3. JS-ND Terms and Definitions
   
-3.1 TJSON-ND Data-Types
+3.1 "Data-Type"
 
    The term "data-type" SHOULD be interpreted to mean:
 
@@ -112,121 +112,152 @@ element name.
      interpreted by the intended consumer.
    
    This definition provides the use of any language syntax to describe 
-   the data associated with the specified data-type.
+   the data associated with the specified data-type.  
+
+   When constructing a JSON-ND message, the programming language of the
+   intended consumer MUST be taken into account because the type names 
+   and syntax of a JSON-ND data-type are language dependent.
 
    JSON-ND reserves the use of three (3) keywords as data-types: 
    "Interface", "MixedType[]" and "Enum".
 
-   JSON-ND also reserves the of two (2) keywords as data-type qualifiers
-   "required" and "property" which are used in conjunction with 
-   a data-type to provide extra handling information.
+3.1.1  Reserved Data-Types
 
-3.2  The Term "name"
-   
-   JSON Interface Interchange syntax describes a "JSON object" as 
-123456789012345678901234567890123456789012345678901234567890123456789012   
-
-    "... a pair of curly bracket tokens surrounding zero or more 
-    name/value pairs."
-
-    However, it is defines name specifically as a "string".
-   
-   JSON-ND defines a "name" more precisely for reference purposes. A 
-   JSON-ND "name" consists of a JSON string containing a "Label", followed
-   optionally by the colon unicode character (%x003A), an optional
-   data-type qualifier, a data-type,   has the following form:
-
-     "label[<colon>[<data-type qualifier><space>]<data-type>]"
-
-   Where "label" is   
-
-
-3.1  Reserved Data-Types
-
-3.1.1  The "Interface" keyword
+3.1.1.1  The "Interface" keyword
 
     "Interface" is a keyword used to indicate that the named element 
     is a data-type definition. 
 
-3.1.2  The "MixedType[]" data-type
+3.1.1.2  The "MixedType[]" data-type
 
     "MixedType[]" is a data-type indicating that the associated value is 
     a JSON Array containing elements that MAY be of different data-type.
 
-3.1.3  The "Enum" data-type
+3.1.1.3  The "Enum" data-type
 
     "Enum" is a data-type that indicates the associated value is a JSON 
     array containing a list of elements intended to define an Enumerated
     type. <ref def>
 
-3.2  Reserved Data-type qualifiers 
+3.2 "Data-Type Qualifier"
 
    Data-type qualifiers are keywords that MAY be pre-pended to a 
    data-type with a space delimiter to provide additional handling 
-   information for the data-type.
+   information for the data-type.  It has the form:
+   
+     <qualifier><space>
+    
+   A Data-type qualifier  MUST always be followed by a data-type.
 
-   The format for a data-type qualifier is:
-   "name:<qualifier> <data-type>" 
+   JSON-ND reserves two (2) text literals as data-type qualifiers:
+    "required" and "property".
 
-3.2.1  The "required" data-type qualifier
+   The keywords MUST be in lowercase.
+
+3.2.1  Reserved Data-type qualifiers 
+
+3.2.1.1  "required"
 
    The keyword "required" when pre-pended to a data-type indicates that 
    the associated value MUST be present AND MUST BE an allowed value of
    that data-type.  Non-compliance is likely to result in the value 
    being rejected by the consumer of the message.
  
-3.2.2  The "property" data-type qualifier
+3.2.1.2  "property"
 
   The keyword "property" when pre-pended to a data-type indicates that 
   that the consumer should consider the named element to be a property 
   <ref def> rather than a field <ref def>. 
 
-4. Qualifying The Data-type of a JSON object Member (name/value pair)
+3.3 JSON-ND "name"
+   The JavaScript Object Notation (JSON) Data Interchange Format 
+   [RFC8259] Section 4, describes a "JSON object" as 
 
-  To qualify the data-type in a JSON object member (aka Name/Value 
-  pair), append a colon character (%x3A) and the data-type after 
-  element Name within the JSON string. 
-  
-  The format is:
-    "name:[<data-type qualifier><space>]<data-type>": "<value>"
+    "... a pair of curly bracket tokens surrounding zero or more 
+     name/value pairs."
 
-  Where:
-    "name" is the 'label' used by the intended language to refer
-      to the value.
-    "data-type qualfier" is option data-type qualifier (either 
-      literal text "required" or "property")
-    "space" is the unicode character %x0020 (must be present if 
-      data-type qualifier is present)
-    "data-type" is the intended data-type for the element
-    "value" is the JSON Value for the JSON Object member. 
+   It defines "name" specifically as a (JSON) "string".  It also refers 
+   to an object "member" as containing a (JSON) "string" a 
+   "name-sparator" and a (JSON) value.
+      
+123456789012345678901234567890123456789012345678901234567890123456789012 
+   JSON-ND defines a "name" more precisely as a JSON string containing a
+   "label", followed optionally by the colon character (unicode %x003A),
+   an optional data-type qualifier and a data-type.  A JSON-ND name 
+   has the form:
 
-  For example, a JSON object containing a single string:
+     "label colon [<data-type qualifier>]<data-type>]"
+
+   Where "label" is the text used by the programming lanaguage to 
+   reference to the value.
+   
+   The colon SHOULD NOT be included if a data-type is not included.
+
+   Whitespace in a JSON-ND name SHOULD be considered as significant, 
+   but dependent on the language interpretation.
+
+4. Qualifying the Data-type of a JSON object Member (name/value pair)
+
+  To convey the intended data-type of a JSON object member (also
+  know as a "Name/Value pair"), convert the JSON object member 
+  "string" to a JSON-ND name.
+   
+  For example, a JSON object containing a single string MAY be qualified
+  as:
+
     {"name:string" : "Alice"}
 
   A JSON object containing a single that is mandatory for 
   processing:
+
     {"name:required string" : "Alice"}
 
-123456789012345678901234567890123456789012345678901234567890123456789012
-5.  Qualifying Array Elements
-  When encoded JSON arrays, the data-type and array range of contained 
-  elements use the form:
+
+5.  Qualifying the Data-Type of Array Elements
+
+5.1 Named Arrays   
    
-   "<label>:<data-type>[<lower bound>,<length>]" : [ <elements>  ] }
+   When a JSON Array is a JSON object member, the convention described
+   in section 4 above (Qualifying the Data-type of a JSON object Member)   
+   MUST be followed and the syntax for defining an array MUST follow the
+   language style specified.
 
-  where
+   It is expected that future specifications will describe the exact 
+   syntax of encoding JSON-ND in specific languages.  Language styles
+   used here are for example purposes only and are informative only.
 
-  For Example:
-   { "transport:string[0,4]" : [ "car", "bus", "plane", "train" ] }
+   Using a PASCAL style language, and array of 2 integer elements MAY be
+   defined as:
 
-  Where the array is defined with:
-    a data-type of string, 
-    an optional lower bound of 0,
-    and an optional length of 4.
+     { "intarray:integer[1..2]": [4,6] }
+
+   In C style languages, the same array MAY be defined as: 
+
+     { "intarray:int[5] : [4,6] }
+   
+   In the case where no specific language style is specified or agreed 
+   in advance, either:
+
+     1. do not include a data-type (the array is a JSON Array); or
+     2. the following form MAY be used:
+        name lb [[lower-bound] comma [length]] rb
+
+    where:
+        "name" is a JSON-ND name
+        "lb" is the literal left square bracked (unicode %x005B),
+        "lower bound" (OPTIONAL) is an integer indicating the lower 
+          bound of the array
+        "comma" (OPTIONAL when no lower bound is supplied) is the 
+          literal comma character (unicode %x002C)
+        "length" (OPTIONAL) is the element length of the array.
+
+  For Example a string array "transport" with 4 elements with a lower 
+  bound of 0 SHOULD be defined as:
+
+     "transport:string[0,4]"
+
  
- There are parsing advantages in this form over standard JSON as the length of array is known in advance and can be pre-allocated.
-
-In order to handle JSON Arrays of mixed type, JSON-ND Syntax uses the **_MixedType[]_** reserved data-type, and encodes mixed type JSon Array values by appending the data type to **_JSON value_** as in the example: 
+ In order to handle JSON Arrays of mixed type, JSON-ND Syntax uses the **_MixedType[]_** reserved data-type, and encodes mixed type JSon Array values by appending the data type to **_JSON value_** as in the example: 
 
 ```
 {
@@ -312,7 +343,7 @@ But:
 represents a data-type of "//myserver.com/api/user" with a value of "http".
 
 
-123456789012345678901234567890123456789012345678901234567890123456789012 
+
 
 MAIN BODY OF THE TEXT
   6.  ...

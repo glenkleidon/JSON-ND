@@ -9,7 +9,7 @@ Abstract
 
    This document describes a set of simple rules for unambigously and
    concisely encoding data-types into JSON Data Interchange Syntax 
-   messages. Additionally, it provides a framework for defining complex
+   messages.  Additionally, it provides a framework for defining complex
    data-types, methods and interfaces for static and remote services 
    using JSON Syntax. These rules and framework, called the JSON-ND (JSON
    with named data-types) Syntax, always produce valid JSON Syntax. This
@@ -52,8 +52,8 @@ Table of Contents
 
 1. Introduction
 
-JSON-ND (JSON with Named Datatypes) is a very simple way to include 
-data-types in [JSON](https://json.org) data. The JSON Syntax is 
+JSON-ND (JSON with named data-types) is a very simple way to include 
+data-types in [JSON] data. The JSON Syntax is 
 described in The JSON Data Interchange Syntax standard 
 [ECMA-ST-ECMA-404] (http://www.ecma-international.org/publications/
 files/ECMA-ST/ECMA-404.pdf) (the JSON standard).
@@ -76,9 +76,9 @@ an omission of a definition of the term in 2 of 3 parts of [JSON Syntax]
 term "name" was described only in the text of the JSON Post, but not
 included in the accompanying McKeeman Form or Workflow diagrams. 
 
-This means, by agreed convention, it is possible to convey an 
-unambiguous data-type in JSON syntax by appending the data-type to the
-element name.
+This clarified defintion allows for an unambigous data-type to be 
+embedded in the name of a JSON object member and still remain legal
+JSON Syntax.
 
 1.1.  Conventions Used in This Document
 
@@ -111,25 +111,38 @@ element name.
      Any text that describes how the associated value is to be 
      interpreted by the intended consumer.
    
-   This definition provides the use of any language syntax to describe 
-   the data associated with the specified data-type.  
+   This definition provides for any language syntax to describe the data
+   associated with the specified data-type.  
 
-   When constructing a JSON-ND message, the programming language of the
-   intended consumer MUST be taken into account because the type names 
-   and syntax of a JSON-ND data-type are language dependent.
+   Because the JSON-ND data-type are language dependent, when consuming
+   a JSON-ND message, the intended consumer MUST be capable of correctly
+   interpretting the type names and the language syntax of the message.
 
-   JSON-ND reserves the use of three (3) keywords as data-types: 
-   "Interface", "MixedType[]" and "Enum".
+   The expectation is that a service will either use an explicit 
+   language style to which the client must conform; or the be capable of 
+   generating multiple versions of the same message to support multiple
+   clients impelementing different language styles.
+   
+   As the differences between languages is generally well known, it is 
+   likely translation services or libraries will become available to 
+   automatically generate translated versions between messages of 
+   different language styles.
+
+123456789012345678901234567890123456789012345678901234567890123456789012 
+   In the interest of interoperability, JSON-ND reserves the use of 
+   three (3) keywords as data-types: "Interface", "MixedType[]" and
+   "Enum".  
 
 3.1.1  Reserved Data-Types
 
 3.1.1.1  The "Interface" keyword
 
-    "Interface" is a keyword used to indicate that the named element 
+    "Interface" is a keyword used to indicate that a JSON object member
     is a data-type definition. 
-
+    
 3.1.1.2  The "MixedType[]" data-type
 
+123456789012345678901234567890123456789012345678901234567890123456789012 
     "MixedType[]" is a data-type indicating that the associated value is 
     a JSON Array containing elements that MAY be of different data-type.
 
@@ -145,12 +158,16 @@ element name.
    data-type with a space delimiter to provide additional handling 
    information for the data-type.  It has the form:
    
-     <qualifier><space>
+     qualifier space
+
+   where: 
+     qualifier is text (either "required" or "property"),
+     space is the literal space character (unicode %x0020)
     
-   A Data-type qualifier  MUST always be followed by a data-type.
+   A Data-type qualifier MUST always be followed by a data-type.
 
    JSON-ND reserves two (2) text literals as data-type qualifiers:
-    "required" and "property".
+   "required" and "property".
 
    The keywords MUST be in lowercase.
 
@@ -158,6 +175,7 @@ element name.
 
 3.2.1.1  "required"
 
+123456789012345678901234567890123456789012345678901234567890123456789012 
    The keyword "required" when pre-pended to a data-type indicates that 
    the associated value MUST be present AND MUST BE an allowed value of
    that data-type.  Non-compliance is likely to result in the value 
@@ -196,6 +214,10 @@ element name.
    Whitespace in a JSON-ND name SHOULD be considered as significant, 
    but dependent on the language interpretation.
 
+   It is expected that future specifications will describe the exact 
+   syntax of encoding JSON-ND in specific languages.  Language styles
+   used here are for example purposes only and are informative only.
+
 4. Qualifying the Data-type of a JSON object Member (name/value pair)
 
   To convey the intended data-type of a JSON object member (also
@@ -207,8 +229,8 @@ element name.
 
     {"name:string" : "Alice"}
 
-  A JSON object containing a single that is mandatory for 
-  processing:
+  A JSON object containing a single member that is mandatory for 
+  processing SHOULD include the "required" data-type qualifier:
 
     {"name:required string" : "Alice"}
 
@@ -221,18 +243,19 @@ element name.
   When type information is included, the names and syntax for the
   array definition SHOULD follow the specified language style.
 
-5.1 Un-Named Arrays and Arrays of Mixed type
 
-  In the case where there is no name associated with a JSON array
+5.1  Un-Named Arrays and Arrays of Mixed type
+
+  In the case where no name is associated with a JSON array,
   or where the array could potentially contain data of mixed type,
   each element of the array MAY contain a data-type.
 
-  To encode an element of JSON array, the JSON value is converted 
-  to a string, and the colon character and a data-type are 
-  appended to the value within the JSON String.  A JSON-ND array 
-  element has the form:
+  To encode an element of JSON array into JSON-ND syntax, the JSON
+  value is converted to a string, and the colon character and a 
+  data-type are appended to the value within the JSON String.  A 
+  JSON-ND array element has the form:
 
-    double-quote value [colon data-type] double-quote
+    double-quote value [colon data-type-qualifier data-type] double-quote
   
   where:
     double-quote is the JSON quote character, 
@@ -240,65 +263,44 @@ element name.
     colon is the literal colon character (unicode %x003A),
     data-type is the JSON-ND data-type of the element.
   
-  For example an integer array
+  For example, an integer array may be encoded as a JSON-ND Array element
+  as:
 
-
-
-
-  JSON Syntax supports Arrays where the elements are not all of the
-  same data-type.  In this case, where a language style has been 
-  specified, AND the language provides a suitable syntax for 
-  describing an array of (potentially) mixed type, the language 
-  specific syntax SHOULD be used to encode the JSON-ND Array.
-
-
-  JSON Syntax supports Arrays where the elements are not all of the
-  same data-type.  In this case, where a language style has been 
-  specified, AND the language provides a suitable syntax for 
-  describing an array of (potentially) mixed type, the language 
-  specific syntax SHOULD be used to encode the JSON-ND Array.
-
-  Where there is no language style specified OR the language does not
-  support a suitable syntax, the reserved data-type, "MixedType[]" 
-  SHOULD be used to encode a named JSON array into JSON-ND syntax.
-  Note: this is the most likely case as this concept is not well 
-  supported in most programming languages.
-
-  It is optional to include type information in a JSON-ND array 
-  element.
+    "27:integer"
   
-  For example, the following is a named JSON-ND array of mixed type. 
+  Assuming that a language style supporting a data-type of "Currency" 
+  indicating the monetary value of a local currency, an Array element
+  of value 27 dollars MAY be encoded as:
 
-    "stuff:MixedType[]" : [
+     "27:Currency"
+    
+  An array with multiple elements may optionally include a data-type for
+  each element.  For example: 
+
+    [
         "Alice:string",
         true,
         "1:currency",
         "To be\u003A Or not to be:string"
     ]
-
-
-  Note that the colon in the text as described in [RFC8259]. It is acept
-
-
+  
+  
 5.2 Named Arrays   
    
    When a JSON Array is a JSON object member, the convention described
    in section 4 above (Qualifying the Data-type of a JSON object Member)   
-   MUST be followed and the syntax for defining an array MUST follow the
+   MUST be followed: the syntax for defining an array MUST follow the
    language style specified.
 
-   It is expected that future specifications will describe the exact 
-   syntax of encoding JSON-ND in specific languages.  Language styles
-   used here are for example purposes only and are informative only.
-
-   Using a PASCAL style language, and array of 2 integer elements MAY be
-   defined as:
+   For example a PASCAL style language, and array of 2 integer elements 
+   MAY be defined as:
 
      { "intarray:integer[1..2]": [4,6] }
 
-   In C style languages, the same array MAY be defined as: 
+   In C style languages, the array MAY be defined similarly (but the 
+   language does not support 1 as a lower bound): 
 
-     { "intarray:int[5] : [4,6] }
+     { "intarray:int[2] : [4,6] }
    
    In the case where no specific language style is specified or agreed 
    in advance, either:
@@ -313,13 +315,12 @@ element name.
         "lsb" is the literal left square bracked (unicode %x005B),
         "lower bound" (OPTIONAL) is an integer indicating the lower 
           bound of the array
-        "comma" (OPTIONAL when no other parameters are supplied) is 
-          the literal comma character (unicode %x002C)
+        "comma" is the literal comma character (unicode %x002C)
         "length" (OPTIONAL) is the element length of the array.
         "rsb" is the literal right square bracket (unicode %x005D)
 
-  For example, and un-bounded array (dynamic) array "transport" of 
-  string type MAY be defined as:
+  For example, and un-bounded, string array of unknown length 
+  "transport" MAY be defined as:
 
     "transport:string[]"    
   
@@ -328,15 +329,27 @@ element name.
 
     "transport:string[0,4]"
   
-  A similar array where the lower bound is unimportant, the lower 
-  bound SHOULD BE omitted.
+  When the lower bound is unimportant, the lower bound SHOULD be 
+  omitted from the definition.
 
-  A string array where number of elements is undefined, the length 
-  SHOULD BE omitted.
+  When the number of elements is unknown, the length SHOULD be 
+  omitted from the definition.
 
-  It is always optional to include type information in a JSON-ND
-  arrays.
+  When neither the lower bound or the length of the array is 
+  specified, the comma MUST be omitted from the definition.
 
+  The "MixedType[]" data-type SHOULD be used to indicate an array 
+  where the data-type of the elements are potentially different.
+  Elements of an Array of "MixedType[]" MAY contain data-types 
+  as described in section 5.1 (Un-Named Arrays and Arrays of 
+  Mixed type).
+
+  When a data-type is specified, elements MUST NOT contain a 
+  data-type, except when the data-type is the reserved 
+  data-type "MixedType[]".    
+ 
+  
+ 
 
   The use of data-type qualifier is **_always_** optional, even for mixed type Json Arrays.  
 

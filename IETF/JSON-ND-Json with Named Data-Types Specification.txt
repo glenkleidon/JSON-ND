@@ -215,7 +215,72 @@ element name.
 
 5.  Qualifying the Data-Type of Array Elements
 
-5.1 Named Arrays   
+  It is always optional to include type information in a JSON-ND
+  arrays.
+
+  When type information is included, the names and syntax for the
+  array definition SHOULD follow the specified language style.
+
+5.1 Un-Named Arrays and Arrays of Mixed type
+
+  In the case where there is no name associated with a JSON array
+  or where the array could potentially contain data of mixed type,
+  each element of the array MAY contain a data-type.
+
+  To encode an element of JSON array, the JSON value is converted 
+  to a string, and the colon character and a data-type are 
+  appended to the value within the JSON String.  A JSON-ND array 
+  element has the form:
+
+    double-quote value [colon data-type] double-quote
+  
+  where:
+    double-quote is the JSON quote character, 
+    value is the JSON value,
+    colon is the literal colon character (unicode %x003A),
+    data-type is the JSON-ND data-type of the element.
+  
+  For example an integer array
+
+
+
+
+  JSON Syntax supports Arrays where the elements are not all of the
+  same data-type.  In this case, where a language style has been 
+  specified, AND the language provides a suitable syntax for 
+  describing an array of (potentially) mixed type, the language 
+  specific syntax SHOULD be used to encode the JSON-ND Array.
+
+
+  JSON Syntax supports Arrays where the elements are not all of the
+  same data-type.  In this case, where a language style has been 
+  specified, AND the language provides a suitable syntax for 
+  describing an array of (potentially) mixed type, the language 
+  specific syntax SHOULD be used to encode the JSON-ND Array.
+
+  Where there is no language style specified OR the language does not
+  support a suitable syntax, the reserved data-type, "MixedType[]" 
+  SHOULD be used to encode a named JSON array into JSON-ND syntax.
+  Note: this is the most likely case as this concept is not well 
+  supported in most programming languages.
+
+  It is optional to include type information in a JSON-ND array 
+  element.
+  
+  For example, the following is a named JSON-ND array of mixed type. 
+
+    "stuff:MixedType[]" : [
+        "Alice:string",
+        true,
+        "1:currency",
+        "To be\u003A Or not to be:string"
+    ]
+
+
+  Note that the colon in the text as described in [RFC8259]. It is acept
+
+
+5.2 Named Arrays   
    
    When a JSON Array is a JSON object member, the convention described
    in section 4 above (Qualifying the Data-type of a JSON object Member)   
@@ -238,40 +303,42 @@ element name.
    In the case where no specific language style is specified or agreed 
    in advance, either:
 
-     1. do not include a data-type (the array is a JSON Array); or
-     2. the following form MAY be used:
-        name lb [[lower-bound] comma [length]] rb
+    1. do not include a data-type (the array is a JSON Array); or
+    2. the following form MAY be used:
+
+        name lsb [[[lower-bound] comma] [length]] rsb
 
     where:
         "name" is a JSON-ND name
-        "lb" is the literal left square bracked (unicode %x005B),
+        "lsb" is the literal left square bracked (unicode %x005B),
         "lower bound" (OPTIONAL) is an integer indicating the lower 
           bound of the array
-        "comma" (OPTIONAL when no lower bound is supplied) is the 
-          literal comma character (unicode %x002C)
+        "comma" (OPTIONAL when no other parameters are supplied) is 
+          the literal comma character (unicode %x002C)
         "length" (OPTIONAL) is the element length of the array.
+        "rsb" is the literal right square bracket (unicode %x005D)
 
-  For Example a string array "transport" with 4 elements with a lower 
-  bound of 0 SHOULD be defined as:
+  For example, and un-bounded array (dynamic) array "transport" of 
+  string type MAY be defined as:
 
-     "transport:string[0,4]"
+    "transport:string[]"    
+  
+  A string array "transport" containing 4 elements with a 
+  lower bound of 0 MAY be defined as:
 
- 
- In order to handle JSON Arrays of mixed type, JSON-ND Syntax uses the **_MixedType[]_** reserved data-type, and encodes mixed type JSon Array values by appending the data type to **_JSON value_** as in the example: 
+    "transport:string[0,4]"
+  
+  A similar array where the lower bound is unimportant, the lower 
+  bound SHOULD BE omitted.
 
-```
-{
-  "stuff:MixedType[]" : [
-    "Alice:string",
-    true,
-    "1:currency",
-    "To be\u003A Or not to be:string"
-  ]
-}
-```
-Note that the colon in the text has been escaped to help with parsing.
+  A string array where number of elements is undefined, the length 
+  SHOULD BE omitted.
 
-The data-type qualifier is **_always_** optional, even for mixed type Json Arrays.  
+  It is always optional to include type information in a JSON-ND
+  arrays.
+
+
+  The use of data-type qualifier is **_always_** optional, even for mixed type Json Arrays.  
 
 In order to prevent a situation where a parser cannot decide if an Array element value has a data type or not, it is **NOT** permitted to specify the data-type in the JSON Array name AND the JSON value ie: 
 

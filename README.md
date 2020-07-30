@@ -402,7 +402,7 @@ This approach also supports multiple alternate implementations of the same type 
    ]
  }
 ```
-with the instance:
+with an example instan.0ce being:
 ```
 {
   mathService : {
@@ -457,7 +457,7 @@ Otherwise, in method-delegate form:
 ```
 
 #### Defining interface properties
-When defining a property the **_property_** keyword may be used.  The definition of the _getters_ and _setters_ for the property will depend upon the language.
+The **_property_** keyword is when defining a class property The definition of the _getters_ and _setters_ for the property will depend upon the language.
 
 For example, the C# interface below:
 ```
@@ -478,7 +478,7 @@ can be described in JSON-ND as
    ]
 }
 ```
-The default behaviour is to assume that both _getter_ and _setter_ are present.  To indicate whether a property is read or write only will be dependent on the language style;
+The default behaviour is to assume that both _getter_ and _setter_ are present. This is true regardless of langauge style. To indicate whether a property is read or write only depends on the language style.
 
 The JSON-ND specification does not specify the exact syntax for defining getters and setters (these may be defined in future standards for language specific implementations), but suggests the following approach.
 

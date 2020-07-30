@@ -362,7 +362,7 @@ This form may also be used in custom data-types.
 ```
 This method is especially useful when defining custom-data types to be implemented as classes. 
 
-The implementation of in-line delegate definitions needs  different approaches depending on the language.  Because JSON-ND states that the data-type is _the text following the last colon_ the Pascal parser would need to identify the return type of Integer and then use keywords to validate the definition as part considered to be the _value_.  The C parser would intepret the data-type as the method and then simply assign the name to the static method. A C++ parser may also encounter colons in the case of a data-type namespace (eg std::) and would need a careful approach to correctly interpret definition.
+The implementation of in-line delegate definitions needs  different approaches depending on the language.  Because JSON-ND states that the data-type is _the text following the last colon_ the Pascal parser would need to identify the return type of Integer and then use keywords to validate the definition as part considered to be the _value_.  The C parser would intepret the data-type as the method and then simply assign the name to the static method. A C++ parser may also encounter colons in the case of a data-type namespace (eg std::) and would need a careful approach to correctly interpret the definition.
 
 #### Method-Delegate Form
 The same _AddTwoIntegers_ method may also be defined using the method-delgate form.  This form is most universal than the in-line method requiring less specific handling. If the consumer application chooses to support method definitions, this approach MUST be implemented (the _in-line_ form is optionally implemented)

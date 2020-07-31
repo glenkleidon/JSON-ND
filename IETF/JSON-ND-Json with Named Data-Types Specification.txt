@@ -1,0 +1,912 @@
+Independent Submission                                      Glen Kleidon
+Request for Comments: <RFC number>                           Independent
+Category: Experimental
+
+            JSON-ND Syntax Rules for Encoding Data-Types 
+                Within JSON Data Interchange Syntax
+
+Abstract   
+
+   This document describes a set of simple rules for unambigously and
+   concisely encoding data-types into JSON Data Interchange Syntax 
+   messages.  Additionally, it provides a framework for defining complex
+   data-types, methods and interfaces for static and remote services 
+   using JSON Syntax. These rules and framework, called the JSON-ND 
+   (JSON with named data-types) Syntax, always produce valid JSON 
+   Syntax. This means that JSON-ND syntax can used to address 
+   type-safety and precision issues caused by JSON Syntax limitations.
+   It can be used to dynamically generate type-safe objects at runtime 
+   for scripting languages and eliminate interpretation error for 
+   dynamically typed languages.
+
+Status of This Memo
+
+   This document is not an Internet Standards Track specification; it is
+   published for examination, experimental implementation, and
+   evaluation.
+
+   This document defines an Experimental Protocol for the Internet
+   community.  This document is a product of the Internet Engineering
+   Task Force (IETF).  It has been approved for publication by the
+   Internet Engineering Steering Group (IESG).  Not all documents
+   approved by the IESG are a candidate for any level of Internet
+   Standard; see Section 2 of RFC 5741.
+
+   Information about the current status of this document, any
+   errata, and how to provide feedback on it may be obtained at
+   http://www.rfc-editor.org/info/rfc<rfc-no>.
+
+Copyright Notice
+
+   Copyright (c) 2020 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents
+   (http://trustee.ietf.org/license-info) in effect on the date of
+   publication of this document.  Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.
+
+Table of Contents
+
+1. Introduction
+
+JSON-ND (JSON with named data-types) is a very simple way to include 
+data-types in [JSON] data. The JSON Syntax is 
+described in The JSON Data Interchange Syntax standard 
+[ECMA-ST-ECMA-404] (http://www.ecma-international.org/publications/
+files/ECMA-ST/ECMA-404.pdf) (the JSON standard).
+
+JSON-ND syntax uses the "name" element of JSON value pairs to convey the
+data-type, or in the case of un-named or mixted type arrays, the value
+is converted to a JSON string and the data-type is appended.
+
+The JSON standard, ECMA-ST-ECMA-404, paragraph 6, in conjunction with 
+[RFC8259](https://tools.ietf.org/html/rfc8259) state that:
+
+   A name is a string. The JSON syntax does not impose any restrictions 
+   on the strings used as names, does not require that name strings be 
+   unique, and does not assign any significance to the ordering of 
+   name/value pairs...
+
+This removes the previously ambigous term "name" which, as a result of 
+an omission of a definition of the term in 2 of 3 parts of [JSON Syntax]
+(https://json.org) (_the JSON Post_), left the intent un-clear.  The 
+term "name" was described only in the text of the JSON Post, but not
+included in the accompanying McKeeman Form or Workflow diagrams. 
+
+This clarified defintion allows for an unambigous data-type to be 
+embedded in the name of a JSON object member and still remain legal
+JSON Syntax.
+
+1.1.  Conventions Used in This Document
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+   "OPTIONAL" in this document are to be interpreted as described in BCP
+   14 [RFC2119] [RFC8174] when, and only when, they appear in all
+   capitals, as shown here.
+
+   The grammatical rules in this document are to be interpreted as
+   described in [RFC5234].
+
+2. JSON-ND Grammar
+
+  JSON-ND grammar is identical to that of JSON Data Interchange Syntax 
+  as defined in [RFC8259] and the JSON standard [ECMA-404].  
+
+  JSON-ND messages MAY contain embedded data-type information and MUST
+  always be valid JSON.
+  
+  For the purposes of parsing JSON-ND, all JSON messages are also valid 
+  JSON-ND messages as the use of embedded data-types is always optional.
+
+3. JS-ND Terms and Definitions
+  
+3.1 "Data-Type"
+
+   The term "data-type" SHOULD be interpreted to mean:
+
+     Any text that describes how the associated value is to be 
+     interpreted by the intended consumer.
+   
+   This definition provides for any language syntax to describe the data
+   associated with the specified data-type.  
+
+   Because the JSON-ND data-type are language dependent, when consuming
+   a JSON-ND message, the intended consumer MUST be capable of correctly
+   interpretting the type names and the language syntax of the message.
+
+   The expectation is that a service will either use an explicit 
+   language style to which the client must conform; or the be capable of 
+   generating multiple versions of the same message to support multiple
+   clients impelementing different language styles.
+   
+   As the differences between languages is generally well known, it is 
+   likely translation services or libraries will become available to 
+   automatically generate translated versions between messages of 
+   different language styles.
+
+   In the interest of interoperability, JSON-ND reserves the use of 
+   three (3) keywords as data-types: "Interface", "MixedType[]" and
+   "Enum".  
+
+3.1.1  Reserved Data-Types
+
+3.1.1.1  The "Interface" keyword
+
+    "Interface" is a keyword used to indicate that a JSON object member
+    is a data-type definition. 
+    
+3.1.1.2  The "MixedType[]" data-type
+
+    "MixedType[]" is a data-type indicating that the associated value is 
+    a JSON Array containing elements that MAY be of different data-type.
+
+3.1.1.3  The "Enum" data-type
+
+    "Enum" is a data-type that indicates the associated value is a JSON 
+    array containing a list of elements intended to define an Enumerated
+    type. <ref def>
+
+3.2 "Data-Type Qualifier"
+
+   Data-type qualifiers are keywords that MAY be pre-pended to a 
+   data-type with a space delimiter to provide additional handling 
+   information for the data-type.  It has the form:
+   
+     qualifier space
+
+   where: 
+     qualifier is text (either "required" or "property"),
+     space is the literal space character (unicode %x0020)
+    
+   A Data-type qualifier MUST always be followed by a data-type.
+
+   JSON-ND reserves two (2) text literals as data-type qualifiers:
+   "required" and "property".
+
+   The keywords MUST be in lowercase.
+
+3.2.1  Reserved Data-type qualifiers 
+
+3.2.1.1  "required"
+
+   The keyword "required" when pre-pended to a data-type indicates that 
+   the associated value MUST be present AND MUST BE an allowed value of
+   that data-type.  Non-compliance is likely to result in the value 
+   being rejected by the consumer of the message.
+ 
+3.2.1.2  "property"
+
+  The keyword "property" when pre-pended to a data-type indicates that 
+  that the consumer should consider the named element to be a property 
+  <ref def> rather than a field <ref def>. 
+
+3.3 JSON-ND "name"
+   The JavaScript Object Notation (JSON) Data Interchange Format 
+   [RFC8259] Section 4, describes a "JSON object" as 
+
+    "... a pair of curly bracket tokens surrounding zero or more 
+     name/value pairs."
+
+   It defines "name" specifically as a (JSON) "string".  It also refers 
+   to an object "member" as containing a (JSON) "string" a 
+   "name-sparator" and a (JSON) value.
+      
+   JSON-ND defines a "name" more precisely as a JSON string containing a
+   "label", followed optionally by the colon character (unicode %x003A),
+   an optional data-type qualifier and a data-type.  A JSON-ND name 
+   has the form:
+
+     "label colon [<data-type qualifier>]<data-type>]"
+
+   Where "label" is the text used by the programming lanaguage to 
+   reference to the value.
+   
+   The colon SHOULD NOT be included if a data-type is not included.
+
+   Whitespace in a JSON-ND name SHOULD be considered as significant, 
+   but dependent on the language interpretation.
+
+   It is expected that future specifications will describe the exact 
+   syntax of encoding JSON-ND in specific languages.  Language styles
+   used here are for example purposes only and are informative only.
+
+4. Qualifying the Data-type of a JSON object Member (name/value pair)
+
+  To convey the intended data-type of a JSON object member (also
+  know as a "Name/Value pair"), convert the JSON object member 
+  "string" to a JSON-ND name.
+   
+  For example, a JSON object containing a single string MAY be qualified
+  as:
+
+    {"name:string" : "Alice"}
+
+  A JSON object containing a single member that is mandatory for 
+  processing SHOULD include the "required" data-type qualifier:
+
+    {"name:required string" : "Alice"}
+
+5.  Qualifying the Data-Type of Array Elements
+
+  It is always optional to include type information in a JSON-ND
+  arrays.
+
+  When type information is included, the names and syntax for the
+  array definition SHOULD follow the specified language style.
+
+
+5.1  Encoding Un-Named Arrays and Arrays of Mixed type
+
+  In the case where no name is associated with a JSON array,
+  or where the array could potentially contain data of mixed type,
+  each element of the array MAY contain a data-type.
+
+  To encode an element of JSON array into JSON-ND syntax, the JSON
+  value is converted to a string, and the colon character and a 
+  data-type are appended to the value within the JSON String.  A 
+  JSON-ND array element has the form:
+
+    value [colon [data-type-qualifier] data-type]
+  
+  where:
+    value is the JSON value,
+    colon (OPTIONAL) is the literal colon character (unicode %x003A),
+    data-type-qualifier (OPTIONAL) is a JSON-ND data-type qualifier
+    data-type (OPTIONAL) is the JSON-ND data-type of the element.
+    The element must be enclosed by JSON Quote characters.
+  
+  For example, an integer array may be encoded as a JSON-ND Array 
+  element as:
+
+    "27:integer"
+  
+  Assuming that a language style supporting a data-type of "Currency" 
+  indicating the monetary value, and a local currency of "dollars", an 
+  Array element of value 27 dollars MAY be encoded as:
+
+     "27:Currency"
+    
+  An array with multiple elements MAY include a data-type for none, 
+  some or all of the elements.  For example: 
+
+    [
+        "Alice:string",
+        true,
+        "1:currency",
+        "To be\u003A Or not to be:string"
+    ]
+
+  In the example above, the unambigous "boolean" value of "true" does 
+  not need to be qualified.
+  
+5.2 Encoding Named Arrays   
+   
+   When a JSON Array is a JSON object member, the convention described
+   in section 4 above (Qualifying the Data-type of a JSON object Member)   
+   MUST be used: the syntax for defining an array MUST follow the
+   language style specified.
+
+   For example a PASCAL style language, an array of 2 integer elements 
+   MAY be defined as:
+
+     { "IntArray:integer[1..2]": [4,6] }
+
+   In C style languages, the array MAY be defined similarly (but the 
+   language does not support 1 as a lower bound): 
+
+     { "IntArray:int[2] : [4,6] }
+
+   For the C language style where the lower bound is significant, an 
+   alternative style can be temporarily specified see Section <X>,
+   (Scoping ...) or a complex type could be defined - see section <X>
+   (Defining Complex Types).  It is also possible to agree in advance
+   of an implementation, that a particular convention be used in this 
+   case. This approach is NOT recommended as would likely contribute 
+   to a level of "technical debt" within the system.
+   
+   In the case where no specific language style is specified or agreed 
+   in advance, either:
+
+    1. do not include a data-type (the array is a JSON Array); or
+    2. the following form MAY be used:
+
+        name lsb [[[lower-bound] comma] [length]] rsb
+
+    where:
+        "name" is a JSON-ND name
+        "lsb" is the literal left square bracked (unicode %x005B),
+        "lower bound" (OPTIONAL) is an integer indicating the lower 
+          bound of the array
+        "comma" is the literal comma character (unicode %x002C)
+        "length" (OPTIONAL) is the element length of the array.
+        "rsb" is the literal right square bracket (unicode %x005D)
+        The element must be enclosed by JSON Quote characters.
+
+
+  For example, and un-bounded, string array of unknown length called
+  "transport" MAY be defined as:
+
+    "transport:string[]"    
+  
+  A string array called "transport" containing 4 elements with a 
+  lower bound of 0 MAY be defined as:
+
+    "transport:string[0,4]"
+  
+  When the lower bound is unimportant, the lower bound SHOULD be 
+  omitted from the definition.
+
+  When the number of elements is unknown, the length SHOULD be 
+  omitted from the definition.
+
+  When neither the lower bound or the length of the array is 
+  specified, the comma MUST be omitted from the definition.
+
+  The "MixedType[]" data-type SHOULD be used to indicate an array 
+  where the data-type of the elements are potentially different.
+  Elements of an Array of "MixedType[]" MAY contain data-types 
+  as described in section 5.1 (Un-Named Arrays and Arrays of 
+  Mixed type).
+
+  When a data-type is specified, elements MUST NOT contain a 
+  data-type, EXCEPT when the data-type is the reserved 
+  data-type "MixedType[]".    
+
+5.3 . Encoding text Elements containing colons.
+
+  For un-named Arrays, arrays of MixedType[] OR for a named array with
+  no explicit type, either:
+   1. do not include a data-type, AND any colon characters (unicode 
+      %x003A) MUST be escaped using JSON encoding rules (eg ":" becomes 
+      "\u003A"); OR
+   2. include the data-type, and any colon characters MAY be 
+     escaped using JSON Encoding rules.
+
+  In option 2, the data-type definition is assumed to be all text 
+  following the final colon in the string.
+
+  For example the string "To be: Or not to be" may be encoded as any of
+  the following: 
+
+    "To be\u003A Or not to be"
+
+    "To be\u003A Or not to be:string" 
+
+    "To be: Or not to be: string"
+  
+  However, the following sequence: 
+ 
+    "To be: Or not to be"  
+
+  represents a data-type of " Or not to be" with the value "To be",  
+  not a string as intended.
+
+  This case is especially important when encoding a URI.  For human 
+  readability, the recommended approach for encoding URIs (or text where
+  a colon is typically expected to a human reader) is to NOT escape the
+  colons but include a suitable data-type such as "string" or "url" if 
+  defined.  For example the encoding:
+
+    "http://myserver.com/api/user:url"
+
+  is preferred over the the equally valid, but less readable form:
+
+    "http\u003A//myserver.com/api/user".
+
+6. Defining Complex Data-Types
+
+  Programming languages typically support a number of primitive 
+  data-types representing such things a integer, string, boolean, 
+  floating point numbers at different levels of precision. 
+  
+  Many languages provide for user-define types to be defined by 
+  assembling collections of primitive and less complex user-define types
+  into collections such as "structs" or "records" and/or "classes" in
+  object oriented languages.  Most lanaguages also support a form of 
+  enumerated type represented by labels that have ordinal value (eg 
+  Ordinal Types in Pascal, and Enumerable Types in C langauges).
+
+  JSON-ND supports defining complex data types using the "Interface" 
+  and "Enum" reserved data-types.
+
+6.1 Definging Enumerable Types
+
+  JSON-ND defines enumerable types as an array of the reserved data-type
+  "Enum".  The ordinal value of the enumerated type MAY be included as a
+  constant data-type.
+
+  The form of an enumerable type name is:
+     
+     label colon Enum 
+
+  where:
+
+    "label" is the text used by the programming language to reference 
+     the definition,
+    "colon" is the literal colon character (unicode %x003A),  
+    "Enum" is the reserved data-type "Enum"
+    The enumerable type name MUST be enclosed by JSON Quote characters.
+
+  The labels of the enumerable type are defined as elements of an array. 
+  The form of each element in the definition is:
+
+      label colon [constant-data-type]
+
+  where:
+    "label" is the text used by the programming language to reference 
+      the element of the Enumerable type,
+    "colon" (OPTIONAL) is the literal colon character (unicode %x003A),  
+    "constant-data-type" (OPTIONAL) is a constant value representing the
+     ordinal value of the label.
+  
+  For example, a enumerable type representing user roles MAY be encoded
+  as:
+
+    "RoleType:Enum" :[
+        "admin:1",
+        "accounts",
+        "sales",
+        "service"
+    ]
+
+In the case where a specific language has alternative convention for 
+defining an enumerated type that can be conveyed using valid JSON 
+syntax, then this is not precluded.
+
+6.2 Defining Custom Data-types
+
+  JSON-ND syntax defines data-types using the reserved data-type 
+  "Interface". The data-type names and syntax of the definition is 
+  language style dependent so a language style MUST be specified (
+  either explicitly or by prior arrangement).
+
+  Custom types MAY be defined as:
+    a JSON-ND object member of data-type "Interface"; or 
+    an JSON-ND Array of type Interface.
+
+  The form of a custom type name is:
+     
+     label colon Interface 
+
+  where:
+
+    "label" is the text used by the programming language to reference 
+     the definition,
+    "colon" is the literal colon character (unicode %x003A),  
+    "Interface" is the reserved data-type "Interface"
+    The custom type name MUST be enclosed by JSON Quote characters.
+
+  The form of a custom type definition is:
+
+      label colon data-type
+
+  where:
+    "label" is the text used by the programming language to reference 
+      the associated value,
+    "colon" is the literal colon character (unicode %x003A),  
+    "data-type" is a language dependent data-type or another custom 
+      data-type.
+    
+  For example, a custom type called user MAY be encoded using C language
+  style as:
+
+    "User:Interface": [
+       "id:int",
+       "name:string",
+       "roles:RoleType[]"
+    ]
+
+  The same custom type MAY be encoding using Pascal style as:
+    "User:Interface": [
+       "id:integer",
+       "name:string",
+       "roles:Array of RoleType"
+    ]
+
+where primitive types (_id_, _orderDate_), the previously defined _User_ object and an other (presumuably defined) data-type _Customer_ are used in the _Order_ data-type.
+
+There is no restriction of the use of complex types so nested objects are permitted.
+
+### Optional and Required Data
+In JSON-ND syntax, for simple or complex types, the data-type qualifier is **always optional**.  This does not speak to whether an element is required for a particular service or method.
+
+The reserved keyword **_required_** can be prepended to any data type using a space as delimiter, in order to inform the consumer that element should never be omitted or null. 
+
+For example it may be that a service needs the _id_ element to work correctly.  So the definition for the service or object can indicate that a request will be rejected if the element is missing:
+
+```
+{
+  "User:Interface": [
+        "id:required int",
+        "name:string",
+        "roles:RoleTypes[0,]"
+    ]
+}
+```
+
+Many languages styles support the option of non-nullable data-type: this may or may not be explict.  So how this is implemented in JSON-ND will often dependend on the language style.
+
+For example the _int_ type in C# is explicitly not nullable, so in this case where the language style is specified, the _required_ keyword is redundant and can be omitted.  
+
+### Defining Methods and Remote Methods (Remote Procedure Calls)
+Because the JSON String type has no character format restrcitions, JSON-ND allows for a method call to be written exactly as it is in the specific language.
+
+When defining a **method** JSON-ND allows two forms: an **_inline-method_** form and a **_method-delegate_** form.
+
+#### In-line form
+Using Pascal Style, a simple method for adding two integers could be defined as part of a complex data-type in an in-line form:
+```
+ {
+   "mathServic:Interface [
+     ...,
+     "function AddTwoIntegers(int1:integer; int2:integer):integer" 
+   ]
+ }
+
+```
+Pascal, Kotlin and Typescript styles (to name a few) have the added advantage that the syntax complies with the convention that the data-type (return type in this case) is appended after a last colon in the JSON String.
+
+For C style languages, the method would be defined as:
+```
+ {
+   "mathService:Interface [
+     ...,
+     "int AddTwoIntegers(int int1, int int2)" 
+   ]
+ }
+```
+Unfortunately, this form does not append the data type so, implementers of JSON-ND in these languages will have to accept a minor exception to the rule.
+
+#### Method-Delegate form
+The same _AddTwoIntegers_ method MAY be defined using the method-delgate form. This form is intended to convey additional information about the method, for example, the endpoint URI where the method can be evoked.
+
+In Pascal Style:
+```
+ {
+   "AddTwoIntegers:Interface": "function(int1:integer; int2:integer):integer",
+   "mathService:Interface": [
+     ...,
+     "addTwoIntegers:AddTwoIntegers"
+   ]
+ }
+```
+
+In C Style:
+```
+ {
+   "AddTwoIntegers:Interface": "int AddTwoIntegers(int int1, int int2)",
+
+   "mathService:Interface": [
+     ...,
+     "addTwoIntegers:AddTwoIntegers" 
+   ]
+ }
+```
+In the instance, the defined service object might look like this:
+```
+{
+  mathService : {
+    "addTwoIntegers": "./api/addtwointegers"
+  }
+}
+```
+Taking this one step further, because the delegate is defined, you could define alternate implementations of the same type on different services:
+```
+ {
+   "AddTwoIntegers:Interface": "int AddTwoIntegers(int int1, int int2)",
+
+   "mathService:Interface": [
+     ...,
+     "addTwoIntegers:AddTwoIntegers", 
+     "addTwoIntegers_REST:AddTwoIntegers",
+     "addTwoIntegers_AU:AddTwoIntegers", 
+     "addTwoIntegers_NZ:AddTwoIntegers",
+   ]
+ }
+```
+with the instance:
+```
+{
+  mathService : {
+    "addTwoIntegers": "./api/addtwointegers",
+    "addTwoIntegers_REST": "./api/addtwointegers/:int1/:int2",
+     "addTwoIntegers_AU: "https://apis.company.com.au/api/addtwointegers",
+     "addTwoIntegers_NZ": "https://apis.company.co.nz/api/addtwointegers" 
+  }
+}
+```
+
+
+### Defining Class Interfaces
+
+It is possible to define _**Interfaces**_ that can be implemented as _Class_ depending on the consumer language.
+
+Many langauges support Classes including Javascript as of [ES6](http://www.ecma-international.org/ecma-262/6.0/).
+
+Take the Typescript definition below:
+```
+class Vendor {
+  name: string;
+
+  constructor(name: string) {
+    this.name = name;
+  }
+
+  greet() {
+    return "Hello, welcome to " + this.name;
+  }
+}
+```
+
+This can easily be represented as an interface in JSON-ND as:
+```
+{
+  "Vendor:Interface" : [
+    "constructor(name: string):Vendor",
+    "greet():void"
+  ]
+}    
+```
+#### Defining interface properties
+When defining a property the **_property_** keyword may be used.  The definition of the _getters_ and _setters_ for the property will depend upon the language.
+
+For example, the C# interface below:
+```
+public interface ISampleInterface
+{
+    string Name
+    {
+        get;
+        set;
+    }
+}
+```
+can be described in JSON-ND as 
+```
+{
+   "ISampleInterface:Interface" : [
+     "name:property string"
+   ]
+}
+```
+The default behaviour is to assume that both _getter_ and _setter_ are present.  To indicate whether a property is read or write only will be dependent on the language style;
+
+The JSON-ND specification does not specify the exact syntax for defining getters and setters (these may be defined in future standards for language specific implementations), but suggests the following approach.
+
+For C#, the following method-delegate form may be sufficient:
+```
+{
+   "Name:Interface":"string name{get;set;}", 
+
+   "ISampleInterface:Interface" : [
+     "name:property Name"
+   ]
+}
+```
+For Pascal, where and interface definition must contain the method name for the getter and/or setter:
+```
+ Type 
+   ISampleInterface = Interface
+     function GetName: string;
+     procedure SetName(const Value: string);
+     property name: string read GetName write SetName;
+   end;
+```
+the following form is suggested:
+```
+{
+   "getName:Interface":"function GetName: string", 
+   "setName:Interface":"procedure SetName(const Value: string)", 
+   "Name:Interface":"string read getName write setName}",
+
+   "ISampleInterface:Interface" : [
+     "name:property Name"
+   ]
+}
+```
+Other languages could follow the same approach.
+
+In JSON-ND, _Class_ definitions are technical possibility: it would require the implementation of methods to be included in the definition and this is an extreme security risk. 
+
+**However, implementations SHOULD NOT be included in definitions** because it is extremely difficult to prevent arbitrary code from being executed in the consumer application. Scripting languages are particularly vulnerable (eg dynamic SQL and the _exec_ command in javascript). The inclusion of implementations for compiled languages might encourage developers to include dynamic execution methods in their applications making them vulnerable.
+
+## Conveying Language Style and error handling
+
+Data consumers need to be certain of the message syntax (either JSON-ND or JSON) to ensure the data is correctly interpretted. 
+
+_The specification_ defines 3 qualifiers for indicating the message type.
+
+ 1. "version" indicating the version of JSON-ND specifciation ("1.0")
+ 2. "style" conveys the context of data-types and method syntax (eg "xs", "c++", "pascal", "c#")
+ 3. "strict" indicator for error handling purposes.
+
+These indicators can be conveyed to the data consumer in any way. For example:
+ + out of bounds : A pre-agreement where JSON-ND version, style and strictness have been coded into the application by design
+ + by using a protocol specific metadata exchange (eg HTTP Content-type)
+ + by including a JSON-ND object within the message.
+
+The official MIME-Type `application/json-nd` with the parameters "version", "style" and "strict".  This mime-type registered with IANA.
+
+### Scoping JSON-ND using the JSON Object
+
+The Scope of a language style may be restricted using then JSON-ND object.
+
+The JSON-ND object is defined as:
+```
+ "Json-ND" :{ 
+  "version": 1.0, 
+  "style": "<language>", 
+  [,"strict": true|false] 
+  [, "data":{}]
+}
+```
+This allows a single message to include multiple versions of the defintion or data to be included in a single message.
+
+```
+{
+  "Json-ND" :{ 
+    "version": 1.0, 
+    "style": "pascal", 
+    "data":{
+      "Vendor:Interface" : [
+        "constructor Create(name: string)",
+        "procedure greet"
+      ] 
+    }
+  },
+  "Json-ND" :{ 
+    "version": 1.0, 
+    "style": "C#", 
+    "strict": true, 
+    data:{
+      "Vendor:Interface" : [
+        "Vendor(string name)",
+        "void greet()"
+      ] 
+    }
+  }
+}
+```
+
+The only allowed value of _**version**_ is currently "1.0". 
+
+The _**style**_ property is a string value that indicates a programming language or specification where data-types and/or method syntax are defined. Any string may be used here to sufficiently disambiguate all data-types and method syntax used within the message.
+
+The _**strict**_ property indicates that non-conformant messages should be rejected.  Where the strict propery is not used (or set to false) then no error message should be generated by the parsing process, however it may be that a method may still fail during processing.
+
+### Error handling (_strict_ indicator)
+The introduction of typing in JSON-ND introduces the need for error handling because there is a potential for data to be incompatible with the definition.
+
+The default action when parsing JSON-ND syntax for unknown properties, non-conformant values, or misalignment of range bounds in Arrays is to **ignore data and adhere the specified type**.  For example: the following non-conformant message: 
+```
+{"name:string": true, "items:integer[0,2]" : "[3,2.5,7]" } 
+```
+should be interpretted as: 
+```
+{"name:string": null, "items:integer[0,2]" : "[3,<default||null>]" } 
+```
+and the consumer should attempt to use the interpretted data as supplied. 
+
+When the JSON-ND "strict" qualifier is used (either unqualified or set to "true") then the entire message transaction should be rejected as an error.
+
+For Example using a Scoped JSON-ND Object: 
+```
+ "Json-ND" :{ 
+  "version": 1.0, 
+  "style": "pascal", 
+  "strict": true, 
+  "data":{
+      "id:required integer": null,
+      "age:integer": "old",
+   }
+}
+```
+should result in an exception being raised and error handling to be evoked.  This applies equally an entire message using the JSON-ND mime-type, for example in the http request:
+```
+GET /api/user HTTP/1.1
+Content-Type: application/json-nd; version=1.0; style="pascal"; strict
+
+{
+  "id:required integer": null,
+  "age:integer": "old"
+}
+```
+The receiving server should reject the message as a `400 Bad Request` as the required Identifier "id" is not supplied and the integer element "age" is not an integer.
+
+
+
+MAIN BODY OF THE TEXT
+  6.  ...
+
+7.  IANA Considerations
+
+  The media type for JSON-ND text is application/json-nd.
+
+   Type name:  application
+
+   Subtype name:  json-nd
+
+   Required parameters:
+
+   Optional parameters: version; style; strict;
+
+   Encoding considerations:  binary
+
+   Security considerations:  These are Idential to JSON, See RFC 8259,
+    Section 12.
+
+   Interoperability considerations: These are identical to JSON as 
+    Described in RFC 8259.
+
+   Published specification:  
+
+   Applications that use this media type:
+      A limited number of demonstration applications have used JSON-ND 
+      Syntax, however, as JSON-ND is a superset of JSON, it has the 
+      potential to exchange data between any applications currently 
+      capable of using JSON Syntax and any future applications that
+      could potentially support JSON Syntax. 
+
+   Additional information:
+      Magic number(s): n/a
+      File extension(s): .jsonnd
+      Macintosh file type code(s): TEXT
+
+   Person & email address to contact for further information:
+      glen Kleidon
+      <gk@galkam.com.au>
+
+   Intended usage:  COMMON
+
+   Restrictions on usage:  none
+
+   Author:
+      Glen Kleidon
+      <gk@galkam.com.au>
+
+   Change controller:
+      Glen Kleidon
+      <gk@galkam.com.au>
+
+  
+11.  Security Considerations
+  The security considerations for JSON-ND are essentially identical to 
+  those of JSON Syntax: See RFC 8259, Section 12.
+
+  It is noteworthy that because JSON-ND allows for remote methods to be
+  defined and also for Interfaces to carry method definitions, that the
+  risk of JSON-ND consumers executing arbitrary code conveyed in a 
+  JSON-ND message may be high than that of JSON syntax where the 
+  language supports that feature (eg "eval()" in Javascript or 
+  variations of the "exec" method in SQL implementations).
+
+10.  References
+123456789012345678901234567890123456789012345678901234567890123456789012
+  10.1.  Normative References
+
+  10.2.  Informative References
+  Appendix A.
+  Appendix B.
+
+Acknowledgements
+  
+  I must acknowledge Anders Heljlsberg and the Typescript team at 
+  Microsoft who's work on Typescript inspired the principles of JSON-ND
+  particularly with respect to the default formatting and the idea of
+  Super-Set of a work could extend its functionality without 
+  fundamentally changing it. 
+
+Contributors
+
+  This document was written by Glen Kleidon.
+
+Author's Address
+   
+   Glen Kleidon (Author)
+   Galkam Pty Ltd
+
+   Email: gk@galkam.com.au

@@ -526,17 +526,15 @@ Table of Contents
 6. Defining Data-Types
 
    Programming languages typically support a number of primitive 
-   data-types representing such types as integer, string, boolean and  
-   often one or more floating point number at different levels of 
-   precision. 
+   data-types such as integer, string, boolean and one or more floating 
+   point number representations at different levels of precision. 
   
    Many languages provide for more complex types to be defined by 
    assembling collections of primitive and less complex types into 
    collections known as "lists", "structs" or "records"  and/or 
-   "classes" in object oriented languages.  Most lanaguages also 
-   support a form of enumeration type represented by labels that have 
-   ordinal value (e.g. Ordinal Types in Pascal, and enumeration types in 
-   C style langauges).
+   "classes".  Most lanaguages also support a form of enumeration type 
+   represented by labels that have ordinal value (e.g. Ordinal Types in 
+   Pascal, and enumeration types in C style langauges).
 
    JSON-ND supports defining complex data types using the "Interface" 
    and "Enum" reserved data-types.
@@ -546,30 +544,11 @@ Table of Contents
    A "JSON-ND Enum type" SHALL BE:
 
      a named array of the reserved data-type "Enum" where each element 
-     of the Array is a JSON-ND enum type element.
+     of the Array is a JSON-ND Enum type element.
 
-   In the case where a specific language style has alternative 
-   convention for defining an enumeration type that can be conveyed 
-   using valid JSON syntax, then the language specific form SHOULD be 
-   used in preference to a JSON-ND Enum Type.
+   Typically, the order of the JSON-ND Enum type elements is significant
+   except when all elements contain a constant data type.
 
-   The order of the JSON-ND Enum type elements is significant where one 
-   or more elements in the defintion do not include a specified value.
-   
-   The form of a JSON-ND Enum element SHALL BE:
-     
-     label [colon constant-data-type]
-
-   where:
-
-    "label" is the text used by the programming language to reference 
-     the defined value of the element,
-    "colon" is the literal colon character (unicode %x003A),  
-    "constant-data-type" is constant data-type indicating the ordinal 
-     position or value of the Enum type element.
-
-   The Enum type element MUST be enclosed by JSON Quote characters.
-  
    For example, a JSON-ND Enum type representing a computer Users 
    allowed roles MAY be encoded as:
 
@@ -580,16 +559,33 @@ Table of Contents
        "service"
      ]
 
-6.3 Defining Complex Data-types
+   where order of the elements is significant.  Alternatively the same
+   definition MAY be encoded as:
 
-   A "JSON-ND Complex Type Member" (complex type memeber) SHALL BE:
-     A  
+     "RoleType:Enum" :[
+       "service:4",
+       "accounts:2",
+       "admin:1",
+       "sales:3"
+     ]
+   
+   where the order of the elements is insignificant.
+   
+   In the case where a specific language style has alternative 
+   convention for defining an enumeration type that can be conveyed 
+   using valid JSON syntax, then the language specific form SHOULD be 
+   used in preference to a JSON-ND Enum Type.
+
+6.3 Defining Complex Data-types
 
    A "JSON-ND Complex Type" (complex type) SHALL BE:
      
      A JSON-ND Array of the (reserved) data-type "Interface" containing
-     one or more elements primitive data-types and/or one or more
-     less complex data-types. 
+     one or more JSON-ND Data-Type Elements where the data-type is:
+       a language specific primitive data-type; and/or 
+       one or more less complex data-types;
+     and the "label" is the text used by the target language to 
+     reference the associated value.
 
    The names and syntax of the definition of a complex Type SHALL BE 
    language style dependent, so a language style MUST be specified 
@@ -603,30 +599,7 @@ Table of Contents
      a JSON-ND object member of data-type "Interface"; or 
      an JSON-ND Array of type Interface.
 
-   The form of a custom type name is:
-     
-     label colon Interface 
-
-   where:
-
-     "label" is the text used by the programming language to reference 
-      the definition,
-     "colon" is the literal colon character (unicode %x003A),  
-     "Interface" is the reserved data-type "Interface"
-     The custom type name MUST be enclosed by JSON Quote characters. 
-
-   The form of a complex type definition SHALL BE:
-
-      label colon data-type
-
-   where:
-     "label" is the text used by the programming language to reference 
-       the associated value,
-     "colon" is the literal colon character (unicode %x003A),  
-     "data-type" is a language style specific data-type or another 
-     complex data-type.
-    
-   For example, a complex type called "user" MAY be encoded using C 
+   For example, a complex type called "User" MAY be encoded using C 
    language style as:
 
      "User:Interface": [
@@ -643,39 +616,47 @@ Table of Contents
        "roles:Array of RoleType"
      ]
 
-   where the primitive types (id, orderDate), the previously defined 
-   "User" data-type and an other (presumuably defined) data-type 
-   "Customer" form part of MORE complex "Order" data-type.
+   where the primitive type "id" and other (presumuably defined) 
+   data-type "RoleType" form part of the complex "User" data-type.
 
    There SHALL BE no restriction of depth of complex types, so nested 
    data-type definitions are permitted.
 
-6.4 Optional and Required Data Elements
+6.4 Handling Optional and Required Data Elements
 
-   In JSON-ND syntax, the data-type qualifier is optional.  This 
-   optionality does NOT indicate whether an element is required for a 
-   particular service or method.
+   When encountering an instance of the 
 
-   In order to inform the data consumer that element should never be 
-   omitted or have null value, the data-type qualifier "required" SHALL
-   BE used.
+   A JSON-ND data-type element that includes the data-type qualifier  
+   "required" indicates to a data producer that the associated value
+   MUST never be omitted AND that the value should contain an acceptable
+   value for that  .  A data consumer SHOULD expect that value is 
+   never omitted and appropriate error handling should be evoked in the
+   case where an instance of the data-type does not contain the element.
 
-   For example, in a data consumer acting as a Service, a particular 
-   function "UpdateUser" must have a valid value of "id" to correctly 
-   handle the request.  The definition for the service or object MAY 
-   indicate that a request will be rejected if the "id" element is 
-   invalid or missing by using the "required" data-type qualifier.  The
-   definition of the Service's "User" type MAY be:
+   For example:
+  
+     a web service acting as a data consumer, exposes a function 
+     "UpdateUser" which must have a valid value of "id" to correctly 
+     handle a request.  
+   
+     The "User" data-type MAY be defined as:
 
-     "User:Interface": [
-       "id:required int",
-       "name:string",
-       "roles:RoleTypes[0,]"
-     ]
-   Many languages styles support the option of non-nullable data-type: 
-   this may or may not be explict.  For example the "int" type in C# is 
-   explicitly not nullable, so for this language style, the "required"
-   data-type qualifier is redundant and SHOULD be omitted.  
+       "User:Interface": [
+         "id:required int",
+         "name:string",
+         "roles:RoleTypes[0,]"
+       ]
+    
+   If a service client, acting as a data producer, attempted to send a 
+   a request to the function containing the JSON object:
+
+     "User" : {
+       "name" : "Alice",
+       "roles": [sales]
+     }
+
+   the service is likely to send a "Bad Request" response indicating 
+   that the request is invalid.
 
 7.  Defining Methods and Remote Methods (Remote Procedure Calls)
 

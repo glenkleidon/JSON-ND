@@ -571,7 +571,7 @@ Table of Contents
    assembling collections of primitive and less complex types into 
    collections known as "lists", "structs" or "records"  and/or 
    "classes".  Most lanaguages also support a form of enumeration type 
-   represented by labels that have ordinal value (e.g. Ordinal Types in 
+   represented by labels that have ordinal value (e.g. ordinal types in 
    Pascal, and enumeration types in C style langauges).
 
    JSON-ND supports defining complex data types using the "Interface" 
@@ -585,7 +585,8 @@ Table of Contents
      of the Array is a JSON-ND Enum type element.
 
    The order of the JSON-ND Enum type elements is significant except 
-   when all elements contain a constant data type.
+   when ALL elements within the defintion contain a constant 
+   representing the ordinal value.
 
    For example, a JSON-ND Enum type representing a computer Users 
    allowed roles MAY be encoded as:
@@ -621,7 +622,7 @@ Table of Contents
      A JSON-ND Array of the (reserved) data-type "Interface" containing
      one or more JSON-ND Data-Type Elements where the data-type is:
        a language specific primitive data-type; or 
-       one or more less complex data-types;
+       a complex data-type;
      and the "label" is the text used by the target language to 
      reference the associated value.
 
@@ -633,12 +634,20 @@ Table of Contents
      implicitly by prior arrangement between implementors of the data
       consumer.
 
-   Complex types MAY be defined as:
+   Complex types MAY be defined in the form of:
      a JSON-ND object member of data-type "Interface"; or 
-     an JSON-ND Array of type Interface.
+     an JSON-ND Array of data-type "Interface".
+   
+   The primary use for the  JSON-ND object member form is to encode 
+   methods (i.e. functions or procedures). For example, a function 
+   "MyFunction" returning an "int" MAY be encoded as:
 
-   For example, a complex type called "User" MAY be encoded using C 
-   language style as:
+     {
+       "MyFunction:Interface" : "int MyFunction(int value)"
+     }
+
+   A complex type called "User" MAY be encoded using C language style as 
+   a JSON-ND Array of type "Interface":
 
      "User:Interface": [
        "id:int",
@@ -657,7 +666,7 @@ Table of Contents
    where the primitive type "id" and other (presumuably defined) 
    data-type "RoleType" form part of the complex "User" data-type.
 
-   There SHALL BE no restriction of depth of complex types, so nested 
+   There SHALL be no restriction of depth of complex types, so nested 
    data-type definitions are permitted.
 
 
@@ -683,13 +692,12 @@ Table of Contents
      1. "in-line" as the data-type of named element
      2. as an interface definiton.  
 
-7.1 Remote Methods: Data Type Form
+7.1 Remote Methods: Data-Type Form
 
    The "JSON-ND Data-type" form for defining remote methods SHALL BE:
 
-     a member of a JSON-ND complex type definition containing the method
-     signature of a function or procedure in the syntax of a specific 
-     language.
+     a member of a JSON-ND complex type containing the method signature 
+     of a function or procedure in the syntax of a specific language.
 
    For example, using Pascal style, a simple method for adding two 
    integers MAY be defined as part of a complex data-type:
@@ -711,19 +719,21 @@ Table of Contents
    Note that syntax of Pascal, Kotlin and Typescript comply with the 
    JSON-ND convention that the data-type is appended after a last colon 
    in the JSON String, but the C Style languages do not.  Implementers 
-   of JSON-ND in C style languages will need to take account of this 
-   difference.
+   of JSON-ND will need to use different approaches for parsing the 
+   JSON-ND complex type definitions especially with respect to the use 
+   of the colon character.
 
 7.2  Remote Methods: In-line Delegate Form
    
    The in-line delegate form allows an instance of an JSON object to 
    convey a method and ANY additional information about the method such
    as it's endpoint. This approach MAY allow for a consumer to call a 
-   remote method unknown at compile time.
+   remote method dynamically (i.e. the method may not be known at 
+   compile time).
 
    This form is also is especially useful when defining custom
-   data-types that represent class interfaces making the definition less
-   verbose and more readable.
+   data-types that represent class interfaces by making the definition
+   less verbose and more readable.
 
    The in-line form for defining remote methods SHALL BE:
 
@@ -733,14 +743,14 @@ Table of Contents
    
    The "Interface" data-type is not used. 
 
-   For example, using Pascal language style, the method pointer 
-   definition for a function "AddTwoIntegers" MAY be defined as: 
+   For example, in Pascal language, the method pointer (delegate) of a 
+   function "AddTwoIntegers" MAY be coded as: 
 
      Type
-       AddTwoIntegers = function(int1:integer; int2:integer): integer;
+      AddTwoIntegers = function(int1:integer; int2:integer): integer;
 
-   The in-line delegate form of this function MAY appear in a JSON-ND 
-   message as:
+   The in-line delegate form of this function, including its endpoint,
+   MAY appear in a JSON-ND message as:
 
      {
       "AddTwoIntegers:function(int1:integer; int2:integer):integer"
@@ -749,8 +759,8 @@ Table of Contents
 
    Language specific handling is required to implement this form and the
    syntax of the langauge may violate JSON-ND conventions with respect
-   to the colon character.  For this reason, an application supporting 
-   JSON-ND Remote method definitions is NOT REQUIRED support for this 
+   to the colon character.  For this reason, applications supporting 
+   JSON-ND Remote method definitions are NOT REQUIRED to support this 
    form.
 
 7.3  Remote Methods: Method-Delegate Form

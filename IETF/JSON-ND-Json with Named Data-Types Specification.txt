@@ -350,7 +350,28 @@ Table of Contents
 
     is a valid Enum type element.
 
-3.8 "Language Style Scope"
+3.9 "JSON-ND String Element"
+   
+   A "JSON-ND string element" (string element) SHALL be:
+    
+      a JSON object member value or JSON Array element represented as a 
+      JSON-ND data-type element where the "label" is the string 
+      representation of the value.
+    
+   Within the JSON example: 
+
+    {
+      "ValueIsTrue" : "true:boolean",
+      "cl1" : [
+        "true:boolean"
+      ],
+    }
+ 
+   both occurences of the text "true:boolean" are JSON-ND string 
+   elements.
+  
+   
+3.10 "Language Style Scope"
    
    JSON-ND messages may contain parts that conform to one, or to many 
    different language styles.  It is also possible to disable JSON-ND 
@@ -420,18 +441,19 @@ Table of Contents
      3. An alternate syntax may be coded into in the implementation by
      prior agreement.
 
-   In the case where no specific language style is specified or agreed 
-   in advance, either:
+   In the case where no language style is specified or agreed in 
+   advance, a JSON-ND producer MAY:
 
-     1. do not include a data-type (the array is a JSON Array); or
-     2. the default JSON-ND Array data-type SHOULD be used.
+     1. Choose not to include a data-type (the array is a JSON Array);
+        or
+     2. use the default JSON-ND Array data-type.
    
 5.1 Encoding Named Arrays   
    
    A JSON array that is a JSON object member (i.e. a named JSON array) 
-   MAY be encoded in one of two forms:
+   MUST be encoded in one of two forms:
 
-     1. As a JSON object Member with a qualified data-type; or
+     1. As a JSON object member with a data-type; or
      2. As a JSON array where each element is a JSON-ND Array 
        element
    
@@ -442,8 +464,8 @@ Table of Contents
    data-type, EXCEPT when the data-type is the reserved data-type 
    "MixedType[]".
     
-   For example, and un-bounded, string array of unknown length called
-   "transport" MAY be defined as:
+   For example, an unbounded, string array of unknown length called
+   "transport" MAY be encoded as:
 
      "transport:string[]"    
      
@@ -455,30 +477,31 @@ Table of Contents
         "plane:string"
       ]
    
-   Note that in the example above, the element "boat" is not qualified, 
-   as the data-type is optional for JSON Array elements.
+   Note that in the example above, as data-type is OPTIONAL, not all 
+   elements of the array contain a data-type: the element "boat" is not 
+   qualified and assumed to be a string following JSON syntax rules.
   
    The "MixedType[]" data-type SHOULD be used to indicate an array 
-   where the data-type of the elements are potentially different.
-   Elements of an Array of "MixedType[]" MAY contain data-types 
-   as described in section 5.2 (Un-Named Arrays and Arrays of 
-   Mixed type).
+   where the data-type of the elements within the array are potentially 
+   different.  Elements of an Array of "MixedType[]" MAY contain 
+   data-types as described in section 5.2 (Encoding Unnamed Arrays and 
+   Arrays of Mixed type).
 
-5.2  Encoding Un-Named Arrays and Arrays of Mixed Type
+5.2  Encoding Unnamed Arrays and Arrays of Mixed Type
 
-   In the case where a JSON array is not a JSON Object member (i.e. an
-   unnamed array), or where the array could potentially contain elements
+   A JSON array that is not a JSON Object member (i.e. is an unnamed 
+   array), or where the array could potentially contain elements
    of mixed type, each element of the Array SHALL BE encoded as a 
    JSON-ND Array element.
 
-   For example, an integer array element of value "27" may be encoded in 
-   a JSON-ND syntax as:
+   For example, an integer array element of value "27" MAY be encoded 
+   as a JSON-ND Array element as:
 
     "27:integer"
   
-   Assuming that a language style supporting a data-type of "Currency" 
+   Assuming that a language style supports the "Currency" data-type
    indicating a monetary value in a locale specific currency of 
-   "dollars", an Array element of value 27 dollars MAY be encoded as:
+   "dollars", an array element of value 27 dollars MAY be encoded as:
 
      "27:Currency"
 
@@ -497,42 +520,40 @@ Table of Contents
   
 5.3. Encoding String Elements containing the Colon Character (%x003A).
 
-   For un-named Arrays, arrays of MixedType[] or for named arrays with
-   no explicit type, the JSON String SHALL BE encoded in one of two 
-   forms where:
+   For unnamed arrays, arrays of MixedType[] or for named arrays with
+   no explicit type, a JSON string SHALL be encoded as a JSON-ND string 
+   element.  The string element SHALL be encoded either:
 
-     1. the data-type is NOT specified, AND all colon characters (unicode 
-       %x003A) being escaped using JSON encoding rules; or
-     2. the data-type is specified, AND any colon characters MAY be 
-        escaped using JSON encoding rules.
+     1. without a data-type, AND all colon characters (
+       unicode %x003A) MUST be escaped using JSON encoding rules; or
+     2. The data-type is specified and any colon characters within the 
+       string are OPTIONALLY escaped using JSON encoding rules.
 
-   In option 2 above, the data-type definition SHALL BE considered to 
-   be:
+   When the colon character (%x003A) appears in the text of a String 
+   element, all text following the final colon SHALL be deemed to be a 
+   data-type.
+   
+   It is RECOMMENDED that URIs [ref], or text where a human reader 
+   expects a colon character to be present, SHOULD use the option that
+   includes a data-type.
 
-      all text following the final colon in the JSON string.
-
-   For example the string "To be: Or not to be" may be encoded as any of
-   the following: 
-
+   The following examples represent valid JSON-ND encoding of the string
+   "To be: Or not to be": 
+   
      "To be\u003A Or not to be"
 
      "To be\u003A Or not to be:string" 
 
      "To be: Or not to be:string"
   
-   However, the following sequence: 
+   The following example is NOT valid: 
  
      "To be: Or not to be"  
 
-   represents a data-type of " Or not to be" with the value "To be" and  
-   not a string as intended.
+   because it represents a data-type of " Or not to be" with the value 
+   "To be" and NOT a string as intended.
 
-   For human readability, the recommended approach for encoding URIs 
-   (or text where a human reader expects a colon to be present) is 
-   to NOT escape the colons, but include a suitable data-type such as 
-   "string" or "url" if defined.
-  
-   For example, the encoding:
+   The encoded form of the URL:
 
     "http://myserver.com/api/user:url"
 

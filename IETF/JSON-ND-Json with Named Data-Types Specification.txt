@@ -845,8 +845,23 @@ Table of Contents
    that may be implemented as a "Class" in an object oriented lanaguage 
    or as a "unit" or "module" in a procedural language.
 
-7.4.1 Defining interface properties
-The **_property_** keyword is a modifier to define a class property.  The definition of the _getters_ and _setters_ for the property will depend upon the language.
+7.4.1 Defining Interface Properties
+
+   A Property [WIAP] is a member of a "Class" in object oriented 
+   programming similar to a "Field" [WISF] that allows rules to be 
+   applied enforcing particular behaviour or validation when the value 
+   is "set" by calling a "setter" method or "retrieved" by calling a 
+   "getter" method.
+    
+   The "property" data-type qualifier MAY be applied to a JSON-ND 
+   data-type element to indicate that the element SHOULD be considered 
+   to be a "Property" rather than "Field".
+
+   The presence of both a "Setter" and "Getter" shall be implicit by 
+   default.
+   
+   
+   The definition of the _getters_ and _setters_ for the property will depend upon the language.
 
 For example, the C# interface below:
 ```

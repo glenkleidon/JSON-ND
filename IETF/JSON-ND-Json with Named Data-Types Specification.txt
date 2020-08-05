@@ -684,13 +684,13 @@ Table of Contents
    simply a JSON string containing the method.
 
    Many lanaguages support a way to define the signature for a method 
-   so that it may be treated as a data-type.  For example, this is a 
+   so that it may be treated as a data-type.  For example, this is  
    known as "delegate" in C#, a "function pointer" in C/C++, and a
    "procedural type" or "method pointer" in Pascal.  The method-delegate
-   form uses the language specific delegate syntax.
+   form uses language specific delegate syntax.
    
-   The delegate form MAY be expressed in either: 
-     1. "in-line" as the data-type of named element
+   The delegate form MAY be expressed either: 
+     1. "in-line" as the data-type of named element; or
      2. as an interface definiton.  
 
 7.1 Methods: Data-Type Form
@@ -791,7 +791,7 @@ Table of Contents
 
    where the service "mathService" contains a method "addTwoIntegers" is
    a method of data-type "AddTwoIntegers".  Once defined, an instance of
-   the "mathService" could be encoded :
+   the "mathService" could be encoded as:
 
      {
        "myRemoteService:mathService" : 
@@ -799,55 +799,53 @@ Table of Contents
          "addTwoIntegers:AddTwoIntegers" : 
              "https://myserver.com/api/mathService"
        }
-
      }
 
+7.4 Defining Class Interfaces
+   
+   Many languages support classes including JavaScript as of ECMAScript 
+   version 6 [ECMA-262].
+   
+   Take the Typescript definition below:
 
+     class Vendor {
+       name: string;
 
+       constructor(name: string) {
+         this.name = name;
+       }
 
-### Defining Class Interfaces
+       greet() {
+         return "Hello, welcome to " + this.name;
+       }
+    }
+   
+   This can easily be represented as a JSON-ND complex type using the 
+   in-line delegate form as:
+  
+     {
+       "Vendor:Interface" : [
+         "constructor(name: string):Vendor",
+         "greet():void"
+       ]
+     }    
 
-It is possible to define _**Interfaces**_ that can be implemented as **_Class_** depending on the consumer language.
+   The same class could also be represented in method-delegate form as:
+   
+     {
+        "Greet:Interface" : "greet():void",
+        "Constructor:Interface" : "constructor(name: string):Vendor",
+        "Vendor:Interface" : [
+           "constructor:Constructor",
+           "greet:Greet"
+        ]
+     }    
+   
+   Either representation is sufficient to define an "Interface" [WIAI] 
+   that may be implemented as a "Class" in an object oriented lanaguage 
+   or as a "unit" or "module" in a procedural language.
 
-Many languages support classes including JavaScript as of [ES6](http://www.ecma-international.org/ecma-262/6.0/).
-
-Take the Typescript definition below:
-```
-class Vendor {
-  name: string;
-
-  constructor(name: string) {
-    this.name = name;
-  }
-
-  greet() {
-    return "Hello, welcome to " + this.name;
-  }
-}
-```
-
-This can easily be represented as an interface in _in-line delegate_ form as JSON-ND as:
-```
-{
-  "Vendor:Interface" : [
-    "constructor(name: string):Vendor",
-    "greet():void"
-  ]
-}    
-```
-Otherwise, in method-delegate form:
-```
-{
-  "Greet:Interface" : "greet():void",
-  "Constructor:Interface" : "constructor(name: string):Vendor",
-  "Vendor:Interface" : [
-    "constructor:Constructor",
-    "greet:Greet"
-  ]
-}    
-```
-
-#### Defining interface properties
+7.4.1 Defining interface properties
 The **_property_** keyword is a modifier to define a class property.  The definition of the _getters_ and _setters_ for the property will depend upon the language.
 
 For example, the C# interface below:
@@ -1056,7 +1054,7 @@ The receiving server should reject the message as a `400 Bad Request` as the req
 
 8.  IANA Considerations
 
-  The media type for JSON-ND text is application/json-nd.
+   The media type for JSON-ND text is application/json-nd.
 
    Type name:  application
 
@@ -1106,22 +1104,30 @@ The receiving server should reject the message as a `400 Bad Request` as the req
 
   
 11.  Security Considerations
-  The security considerations for JSON-ND are essentially identical to 
-  those of JSON Syntax: See RFC 8259, Section 12.
+   The security considerations for JSON-ND are essentially identical to 
+   those of JSON Syntax: See RFC 8259, Section 12.
 
-  It is noteworthy that because JSON-ND allows for remote methods to be
-  defined and also for Interfaces to carry method definitions, that the
-  risk of JSON-ND consumers executing arbitrary code conveyed in a 
-  JSON-ND message may be high than that of JSON syntax where the 
-  language supports that feature (eg "eval()" in Javascript or 
-  variations of the "exec" method in SQL implementations).
+   It is noteworthy that because JSON-ND allows for remote methods to be
+   defined and also for Interfaces to carry method definitions, that the
+   risk of JSON-ND consumers executing arbitrary code conveyed in a 
+   JSON-ND message may be high than that of JSON syntax where the 
+   language supports that feature (eg "eval()" in Javascript or 
+   variations of the "exec" method in SQL implementations).
 
 10.  References
-123456789012345678901234567890123456789012345678901234567890123456789012
-  10.1.  Normative References
 
-  10.2.  Informative References
+10.1.  Normative References
+   [ECMA-262]  Ecma international ECMA-262
+
+10.2.  Informative References
+
+   [WIAI]      Oracle, The Java Tutorials, "What Is an Interface"  
+               Archived from the original on 2012-04-12 <https://
+               web.archive.org/web/20120412093619/http://docs.oracle.com/
+               javase/tutorial/java/concepts/interface.html>
+             
   Appendix A.
+
   Appendix B.
 
 Acknowledgements

@@ -619,8 +619,9 @@ Table of Contents
 
    A "JSON-ND Complex Type" (complex type) SHALL BE:
      
-     A JSON-ND Array of the (reserved) data-type "Interface" containing
-     one or more JSON-ND Data-Type Elements where the data-type is:
+     A JSON-ND object member or JSON-ND Array of the (reserved) 
+     data-type "Interface" containing at least one JSON-ND data-type 
+     element where the data-type is:
        a language specific primitive data-type; or 
        a complex data-type;
      and the "label" is the text used by the target language to 
@@ -638,7 +639,7 @@ Table of Contents
      a JSON-ND object member of data-type "Interface"; or 
      an JSON-ND Array of data-type "Interface".
    
-   The primary use for the  JSON-ND object member form is to encode 
+   The primary use for the JSON-ND object member form is to encode 
    methods (i.e. functions or procedures). For example, a function 
    "MyFunction" returning an "int" MAY be encoded as:
 
@@ -692,7 +693,7 @@ Table of Contents
      1. "in-line" as the data-type of named element
      2. as an interface definiton.  
 
-7.1 Remote Methods: Data-Type Form
+7.1 Methods: Data-Type Form
 
    The "JSON-ND Data-type" form for defining remote methods SHALL BE:
 
@@ -723,7 +724,7 @@ Table of Contents
    JSON-ND complex type definitions especially with respect to the use 
    of the colon character.
 
-7.2  Remote Methods: In-line Delegate Form
+7.2  Methods: In-line Delegate Form
    
    The in-line delegate form allows an instance of an JSON object to 
    convey a method and ANY additional information about the method such
@@ -735,7 +736,7 @@ Table of Contents
    data-types that represent class interfaces by making the definition
    less verbose and more readable.
 
-   The in-line form for defining remote methods SHALL BE:
+   The in-line form for defining a method SHALL BE:
 
      a JSON-ND data-type element where the data-type is the language 
      specific signature of a method and the label is the name of the 
@@ -763,55 +764,46 @@ Table of Contents
    JSON-ND Remote method definitions are NOT REQUIRED to support this 
    form.
 
-7.3  Remote Methods: Method-Delegate Form
+7.3  Methods: Method-Delegate Form
    
-   The method delegate form for defining remote methods SHALL BE:
-     
-   The  is defined as a type of _Interface_ and the delegate (or method pointer) form of the function is defined as a _value_.
+   The method delegate form for defining a method SHALL be:
 
-Once defined, the method data-type, it can be included in a custom data-type:
+     a JSON-ND complex type in the JSON-ND object member form, 
+     representing a method in a language specific delegate syntax and
+     the label being the name to be used to refer to the data-type.
 
-```
- {
-   "AddTwoIntegers:Interface": "function(int1:integer; int2:integer):integer",
-   "mathService:Interface": [
-     "addTwoIntegers:AddTwoIntegers"
-   ]
- }
-```
-An instance of the mathService can then contain the endpoint for an implementation:
-```
-{
-  mathService : {
-    "addTwoIntegers": "./api/addtwointegers"
-  }
-}
-```
+   For example, the "AddTwoIntegers" example in section 7.2 may be 
+   represented in JSON-ND method delegate form as:
 
-This approach also supports multiple alternate implementations of the same method on different services:
-```
- {
-   "AddTwoIntegers:Interface": "int AddTwoIntegers(int int1, int int2)",
+     {
+      "AddTwoIntegers:Interface": 
+        "function(int1:integer; int2:integer):integer",
+     }
 
-   "mathService:Interface": [
-     "addTwoIntegers:AddTwoIntegers", 
-     "addTwoIntegers_REST:AddTwoIntegers",
-     "addTwoIntegers_AU:AddTwoIntegers", 
-     "addTwoIntegers_NZ:AddTwoIntegers",
-   ]
- }
-```
-with an example instance being:
-```
-{
-  mathService : {
-    "addTwoIntegers": "./api/addtwointegers",
-    "addTwoIntegers_REST": "./api/addtwointegers/:int1/:int2",
-     "addTwoIntegers_AU: "https://apis.company.com.au/api/addtwointegers",
-     "addTwoIntegers_NZ": "https://apis.company.co.nz/api/addtwointegers" 
-  }
-}
-```
+   The definition "AddTwoIntegers" may be then be used in a more complex
+   type such as a service definition:
+
+     {
+        "mathService:Interface": [
+          "addTwoIntegers:AddTwoIntegers"
+        ]
+     }
+
+   where the service "mathService" contains a method "addTwoIntegers" is
+   a method of data-type "AddTwoIntegers".  Once defined, an instance of
+   the "mathService" could be encoded :
+
+     {
+       "myRemoteService:mathService" : 
+       {
+         "addTwoIntegers:AddTwoIntegers" : 
+             "https://myserver.com/api/mathService"
+       }
+
+     }
+
+
+
 
 ### Defining Class Interfaces
 

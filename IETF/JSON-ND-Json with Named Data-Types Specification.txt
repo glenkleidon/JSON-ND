@@ -812,7 +812,7 @@ Table of Contents
        name: string;
 
        constructor(name: string) {
-         this.name = name;
+         this._name = name;
        }
 
        greet() {
@@ -826,7 +826,7 @@ Table of Contents
      {
        "Vendor:Interface" : [
          "constructor(name: string):Vendor",
-         "greet():void"
+         "greet():string"
        ]
      }    
 
@@ -850,80 +850,133 @@ Table of Contents
    A Property [WIAP] is a member of a "Class" in object oriented 
    programming similar to a "Field" [WISF] that allows rules to be 
    applied enforcing particular behaviour or validation when the value 
-   is "set" by calling a "setter" method or "retrieved" by calling a 
+   is "set" by calling a "setter" method; or "retrieved" by calling a 
    "getter" method.
     
    The "property" data-type qualifier MAY be applied to a JSON-ND 
    data-type element to indicate that the element SHOULD be considered 
    to be a "Property" rather than "Field".
 
-   The presence of both a "Setter" and "Getter" shall be implicit by 
-   default.
+   For example, the C# interface below:
+    
+     public interface ISampleInterface
+     {
+         string Name
+         {
+             get;
+             set;
+         }
+     }
+    
+   MAY be described in JSON-ND as: 
+    
+     {
+       "ISampleInterface:Interface" : [
+         "name:property string"
+        ]
+     }
+    
+
+   The presence of both a "Setter" and "Getter" SHALL be implicit by 
+   default. i.e. If not otherwise specified, a "Getter" and "Setter" 
+   method are assumed to be present.
+
+   When ONLY a "Setter" method for the property is defined, the property
+   SHALL be considered "write only".
+
+   When ONLY a "Getter" method for the property is defined, the property
+   SHALL be considered "read only".
+
+   It is PERMITTED to define both "Getter" and "Setter" methods for a 
+   property but this MAY be rundundant in some languages.
+
+   The syntax for the "Setter" and "Getter" methods MUST be in the 
+   syntax indicated by the language style. The RECOMMENDED approach for
+   defining property methods SHALL BE to use the JSON-ND method-delegate
+   form. 
+     
+   For example, for C++/C# style languages, has an explicit form, the 
+   property MAY be defined as element of a defined delegate: 
    
+     {
+        "Name:Interface":"string name{get;set;}", 
+        
+        "ISampleInterface:Interface" : [
+          "name:property Name"
+      ]
+     }
+
+   and the property is of the data-type defined by the delegate (in this
+   case "Name").
+    
+   In Pascal, where and interface definition must contain the method 
+   name for the setter and getter as shown:
    
-   The definition of the _getters_ and _setters_ for the property will depend upon the language.
+     Type 
+       ISampleInterface = Interface
+         function GetName: string;
+         procedure SetName(const Value: string);
+         property name: string read GetName write SetName;
+       end;
 
-For example, the C# interface below:
-```
-public interface ISampleInterface
-{
-    string Name
-    {
-        get;
-        set;
-    }
-}
-```
-can be described in JSON-ND as 
-```
-{
-   "ISampleInterface:Interface" : [
-     "name:property string"
-   ]
-}
-```
-The default behaviour is to assume that both _getter_ and _setter_ are present. This is true regardless of language style. To indicate whether a property is read or write only depends on the language style.
+   the following form is suggested:
 
-The JSON-ND specification does not specify the exact syntax for defining getters and setters (these may be defined in future standards for language specific implementations) but suggests the following approach.
+     {
+       "getName:Interface":"function GetName: string", 
+       "setName:Interface":"procedure SetName(const Value: string)", 
+       "Name:Interface":"string read getName write setName}",
 
-For C#, the following method-delegate form may be sufficient:
-```
-{
-   "Name:Interface":"string name{get;set;}", 
+       "ISampleInterface:Interface" : [
+           "name:property Name"
+       ]
+     }
 
-   "ISampleInterface:Interface" : [
-     "name:property Name"
-   ]
-}
-```
-For Pascal, where and interface definition must contain the method name for the getter and/or setter:
-```
- Type 
-   ISampleInterface = Interface
-     function GetName: string;
-     procedure SetName(const Value: string);
-     property name: string read GetName write SetName;
-   end;
-```
-the following form is suggested:
-```
-{
-   "getName:Interface":"function GetName: string", 
-   "setName:Interface":"procedure SetName(const Value: string)", 
-   "Name:Interface":"string read getName write setName}",
+   where the delegate "Name", following the pascal style for a property
+   definition, refers to a getter and setter delegate by name, and the
+   property, as it does in the C Style example, will have a data-type 
+   of "Name".
 
-   "ISampleInterface:Interface" : [
-     "name:property Name"
-   ]
-}
-```
-Other languages could follow a similar approach.
+7.4.2 Defining "Classes"
 
-In JSON-ND, **_Class_ definitions** are technically possible: however, it would require the methods implementation to be included in the definition and this is an **extreme security risk**. 
+   Technically, it would be POSSIBLE to define a class in JSON-ND 
+   including the method implementation.  For example in Typescript, 
+   using the interface:
 
-**Implementations SHOULD NOT be included in definitions** because it is extremely difficult to prevent arbitrary code from being executed in the consumer application. Scripting languages are particularly vulnerable (eg dynamic SQL and the _exec_ command in JavaScript). The inclusion of implementations for compiled languages might encourage developers to include dynamic execution methods in their applications also making them vulnerable.
+     {
+        "Greet:Interface" : "greet():string",
+        "Constructor:Interface" : "constructor(name: string):Vendor",
+        "Vendor:Interface" : [
+           "constructor:Constructor",
+           "greet:Greet"
+        ]
+     }  
+    
+    A Class instance could be defined :
+ 
+     { 
+        "Greet:Interface" : "greet():string",
+        "Constructor:Interface" : "constructor(name: string):Vendor",
+        "Vendor:Interface" : [
+           "constructor:Constructor",
+           "greet:Greet"
+        ],
+        "vendor:Vendor": {
+          "_name" : "",
+          "constructor:Constructor" : "this._name=name;",
+          "greet:Greet" : "return 'Hello, welcome to ' + this.name;"
+        }
+     }  
 
-## Conveying Language Style and error handling
+   It is possible in JavaScript to execute the code contained within the 
+   "vendor" object using the JavaScript "exec()" function.
+
+   This approach is NOT RECOMMENDED because allows arbitrary code to be
+   executed and therefore represents a extremely high security risk. 
+
+   Implementations of Interfaces SHOULD NOT be included in JSON-ND 
+   defintions. 
+
+8.  Conveying Language Style and Error Handling.
 
 Data consumers need to be certain of the message syntax (either JSON-ND or JSON) to ensure the data is correctly interpreted. 
 

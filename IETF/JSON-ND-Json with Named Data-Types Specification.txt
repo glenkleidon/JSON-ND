@@ -939,31 +939,23 @@ Table of Contents
 7.4.2 Defining "Classes"
 
    Technically, it would be POSSIBLE to define a class in JSON-ND 
-   including the method implementation.  For example in Typescript, 
-   using the interface:
+   including the method implementation.  For example, using the 
+   interface:
 
      {
-        "Greet:Interface" : "greet():string",
-        "Constructor:Interface" : "constructor(name: string):Vendor",
-        "Vendor:Interface" : [
-           "constructor:Constructor",
-           "greet:Greet"
-        ]
-     }  
+       "Vendor:Interface" : [
+         "constructor(name: string):Vendor",
+         "greet():string"
+       ]
+     } 
     
     A Class instance could be defined :
  
      { 
-        "Greet:Interface" : "greet():string",
-        "Constructor:Interface" : "constructor(name: string):Vendor",
-        "Vendor:Interface" : [
-           "constructor:Constructor",
-           "greet:Greet"
-        ],
         "vendor:Vendor": {
           "_name" : "",
-          "constructor:Constructor" : "this._name=name;",
-          "greet:Greet" : "return 'Hello, welcome to ' + this.name;"
+          "constructor(name: string):Vendor" : "this._name=name;",
+          "greet():string" : "return 'Hello, welcome to ' + this.name;"
         }
      }  
 
@@ -974,10 +966,19 @@ Table of Contents
    executed and therefore represents a extremely high security risk. 
 
    Implementations of Interfaces SHOULD NOT be included in JSON-ND 
-   defintions. 
+   defintions, rather it is RECOMMENDED that:
 
+     1. The instance contains a URI for a service where the method is 
+       executed within a controlled environment (e.g. web server api, 
+       link-library method, GO Lambda service); OR
+     
+     2. The instance contains references to scripts returned from the 
+       server that have an appropriate security policy to ensure safe 
+       execution.
+   
 8.  Conveying Language Style and Error Handling.
-
+   
+   
 Data consumers need to be certain of the message syntax (either JSON-ND or JSON) to ensure the data is correctly interpreted. 
 
 JSON-ND Syntax defines 3 qualifiers for indicating the message type.
@@ -1000,8 +1001,7 @@ The Scope of a language style may be restricted using then JSON-ND object.
 The JSON-ND object is defined as:
 ```
  "Json-ND" :{ 
-  "version": 1.0, 
-  "style": "<language>", 
+  "version": 1.0,   "style": "<language>", 
   [,"strict": true|false] 
   [, "data":{}]
 }
@@ -1034,7 +1034,7 @@ This allows messages to contain multiple definitions and/or data in different la
 }
 ```
 
-6.4 Handling Optional and Required Data Elements
+8.2 Handling Optional and Required Data Elements
    
    Any data-type not explicitly including the "required" data-type 
    qualifier is assumed to be optional.  A JSON-ND parser MUST NOT 
